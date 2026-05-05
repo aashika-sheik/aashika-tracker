@@ -109,38 +109,37 @@ const QURAN_VERSES = [
   { text: "O My servants who have transgressed against themselves — do not despair of the mercy of Allah.", ref: "39:53" },
 ];
 
-// Schedule with prayer times included
 const SCHEDULE = [
-  { time: "5:15am",           label: "Fajr",                   icon: "🌙", type: "prayer" },
-  { time: "9:30–11am",        label: "Focus Time",             icon: "🎧", type: "focus" },
-  { time: "11–11:50am",       label: "Eng, Ops & CS Review",   icon: "🔵", type: "meeting" },
-  { time: "11:10am",          label: "Short Break",             icon: "☕", type: "break" },
-  { time: "11:30am–12:30pm",  label: "Admin Block",             icon: "📋", type: "admin" },
-  { time: "12:45–1:45pm",     label: "Lunch Break",             icon: "🍽️", type: "break" },
-  { time: "1:30pm",           label: "Dhuhr",                  icon: "🕌", type: "prayer" },
-  { time: "2–5pm",            label: "Focus Time",              icon: "🎧", type: "focus" },
-  { time: "3:45pm",           label: "Asr",                    icon: "🕌", type: "prayer" },
-  { time: "4–4:50pm",         label: "Growth Team Sync",        icon: "🔵", type: "meeting" },
-  { time: "5:10pm",           label: "Break",                   icon: "☕", type: "break" },
-  { time: "6pm",              label: "Small Task",              icon: "⭕", type: "admin" },
-  { time: "6:30pm",           label: "Maghrib",                icon: "🌅", type: "prayer" },
-  { time: "7:30pm",           label: "Isha",                   icon: "🌙", type: "prayer" },
+  { time: "5:15am",           label: "Fajr",                 icon: "🌙", type: "prayer" },
+  { time: "9:30–11am",        label: "Focus Time",           icon: "🎧", type: "focus" },
+  { time: "11–11:50am",       label: "Eng, Ops & CS Review", icon: "🔵", type: "meeting" },
+  { time: "11:10am",          label: "Short Break",          icon: "☕", type: "break" },
+  { time: "11:30am–12:30pm",  label: "Admin Block",          icon: "📋", type: "admin" },
+  { time: "12:45–1:45pm",     label: "Lunch Break",          icon: "🍽️", type: "break" },
+  { time: "1:30pm",           label: "Dhuhr",                icon: "🕌", type: "prayer" },
+  { time: "2–5pm",            label: "Focus Time",           icon: "🎧", type: "focus" },
+  { time: "3:45pm",           label: "Asr",                  icon: "🕌", type: "prayer" },
+  { time: "4–4:50pm",         label: "Growth Team Sync",     icon: "🔵", type: "meeting" },
+  { time: "5:10pm",           label: "Break",                icon: "☕", type: "break" },
+  { time: "6pm",              label: "Small Task",           icon: "⭕", type: "admin" },
+  { time: "6:30pm",           label: "Maghrib",              icon: "🌅", type: "prayer" },
+  { time: "7:30pm",           label: "Isha",                 icon: "🌙", type: "prayer" },
 ];
 
 const TASKS = [
-  { text: "Fajr",    tag: "prayer" },
-  { text: "Dhur",    tag: "prayer" },
-  { text: "Asr",     tag: "prayer" },
-  { text: "Maghrib", tag: "prayer" },
-  { text: "Isha",    tag: "prayer" },
+  { text: "Fajr",             tag: "prayer" },
+  { text: "Dhur",             tag: "prayer" },
+  { text: "Asr",              tag: "prayer" },
+  { text: "Maghrib",          tag: "prayer" },
+  { text: "Isha",             tag: "prayer" },
   { text: "Write 1000 words", tag: "habit" },
   { text: "Walk / sunlight",  tag: "habit" },
   { text: "Breakfast",        tag: "habit" },
   { text: "Lunch",            tag: "habit" },
   { text: "Dinner",           tag: "habit" },
-  { text: "Deep work",  tag: "work" },
-  { text: "Meetings",   tag: "work" },
-  { text: "Admin",      tag: "work" },
+  { text: "Deep work",        tag: "work" },
+  { text: "Meetings",         tag: "work" },
+  { text: "Admin",            tag: "work" },
 ];
 
 const TAG_STYLE = {
@@ -180,7 +179,6 @@ function getGreeting() {
   return "السلام عليكم 🌙";
 }
 
-// Returns a guaranteed blank slate for a new day
 function freshState() {
   return {
     done: {},
@@ -299,33 +297,34 @@ export default function App() {
   const [date, setDate] = useState(new Date());
   const today = new Date();
 
-  // Per-day state
-  const [done,           setDone]          = useState({});
-  const [notes,          setNotes]         = useState("");
-  const [journal,        setJournal]       = useState(["", "", ""]);
-  const [waterCups,      setWaterCups]     = useState(0);
-  const [period,         setPeriod]        = useState(false);
-  const [reading,        setReading]       = useState("");
-  const [bookTitle,      setBookTitle]     = useState("");
-  const [bookPoints,     setBookPoints]    = useState("");
-  const [booksCompleted, setBooksCompleted]= useState(0);
-  const [meals,          setMeals]         = useState({ breakfast: "", lunch: "", dinner: "", snacks: "" });
-  const [writingNote,    setWritingNote]   = useState("");
-  const [writingTopic,   setWritingTopic]  = useState("");
-  const [officeTasks,    setOfficeTasks]   = useState([
+  const [done,           setDone]           = useState({});
+  const [notes,          setNotes]          = useState("");
+  const [journal,        setJournal]        = useState(["", "", ""]);
+  const [waterCups,      setWaterCups]      = useState(0);
+  const [period,         setPeriod]         = useState(false);
+  const [reading,        setReading]        = useState("");
+  const [bookTitle,      setBookTitle]      = useState("");
+  const [bookPoints,     setBookPoints]     = useState("");
+  const [booksCompleted, setBooksCompleted] = useState(0);
+  const [meals,          setMeals]          = useState({ breakfast: "", lunch: "", dinner: "", snacks: "" });
+  const [writingNote,    setWritingNote]    = useState("");
+  const [writingTopic,   setWritingTopic]   = useState("");
+  const [officeTasks,    setOfficeTasks]    = useState([
     { id: 1, text: "", done: false },
     { id: 2, text: "", done: false },
     { id: 3, text: "", done: false },
   ]);
 
-  const [waterStreak,   setWaterStreak]   = useState(0);
-  const [loaded,        setLoaded]        = useState(false);
-  const [saving,        setSaving]        = useState(false);
-  const [verseIdx,      setVerseIdx]      = useState(0);
-  const [verseAnim,     setVerseAnim]     = useState(true);
+  const [waterStreak, setWaterStreak] = useState(0);
+  const [loaded,      setLoaded]      = useState(false);
+  const [saving,      setSaving]      = useState(false);
+  const [verseIdx,    setVerseIdx]    = useState(0);
+  const [verseAnim,   setVerseAnim]   = useState(true);
 
-  const bookBarRef = useRef(null);
-  const isDragging = useRef(false);
+  const bookBarRef    = useRef(null);
+  const isDragging    = useRef(false);
+  // ✅ FIX: track which dayKey was actually loaded to prevent stale saves
+  const loadedDayKey  = useRef("");
 
   const dayKey  = toKey(date);
   const isToday = dayKey === toKey(today);
@@ -427,9 +426,10 @@ export default function App() {
 
   // ── LOAD — reset to fresh first, then hydrate from DB ──
   useEffect(() => {
+    // ✅ FIX: mark as not loaded and clear the loadedDayKey immediately
     setLoaded(false);
+    loadedDayKey.current = "";
 
-    // Immediately wipe all state to blank so navigating days never bleeds over
     const blank = freshState();
     setDone(blank.done);
     setNotes(blank.notes);
@@ -445,9 +445,15 @@ export default function App() {
     setWritingTopic(blank.writingTopic);
     setOfficeTasks(blank.officeTasks);
 
+    // Capture the dayKey for this specific load so we can check it hasn't changed
+    const thisLoadKey = dayKey;
+
     (async () => {
       const { data } = await supabase.from("tracker").select("data")
-        .eq("user_name", user).eq("date", dayKey).maybeSingle();
+        .eq("user_name", user).eq("date", thisLoadKey).maybeSingle();
+
+      // ✅ FIX: if the user navigated away before this load finished, abort
+      if (thisLoadKey !== toKey(new Date(date))) return;
 
       if (data?.data) {
         const d = data.data;
@@ -469,7 +475,6 @@ export default function App() {
           { id: 3, text: "", done: false },
         ]);
       }
-      // No data for that day = stays blank (fresh start) ✓
 
       // Water streak calc
       const keys = Array.from({ length: 30 }, (_, i) => {
@@ -488,13 +493,18 @@ export default function App() {
         else break;
       }
       setWaterStreak(streak);
+
+      // ✅ FIX: only mark loaded after we've confirmed this is still the right day
+      loadedDayKey.current = thisLoadKey;
       setLoaded(true);
     })();
   }, [dayKey, user]);
 
   // ── SAVE ──
   useEffect(() => {
-    if (!loaded) return;
+    // ✅ FIX: only save when loaded AND the loaded data belongs to the current dayKey
+    if (!loaded || loadedDayKey.current !== dayKey) return;
+
     (async () => {
       setSaving(true);
       await supabase.from("tracker").upsert(
@@ -513,7 +523,6 @@ export default function App() {
   }, [done, notes, journal, waterCups, period, reading, bookTitle, bookPoints, booksCompleted, meals, writingNote, writingTopic, officeTasks, loaded, dayKey]);
 
   // ── HELPERS ──
-  // Period mode only blocks prayer tasks — habits & work unaffected
   const toggle = (i) => {
     const task = TASKS[i];
     if (period && task.tag === "prayer") return;
@@ -715,7 +724,6 @@ export default function App() {
             const list = grouped[tag];
             const ts = TAG_STYLE[tag];
             const tagDone = list.filter(t => done[t.i]).length;
-            // Only prayer section is dimmed during period
             const isPeriodBlocked = period && tag === "prayer";
             return (
               <div key={tag} style={{ marginBottom: 18 }}>
@@ -876,7 +884,6 @@ export default function App() {
         {/* Writing Space */}
         <Card style={{ marginBottom: 16 }} glow={C.green}>
           <SectionHead accent={C.green}>✍️ 1000 Words Writing Space</SectionHead>
-
           <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>
             📝 What are you writing today?
           </div>
@@ -886,7 +893,6 @@ export default function App() {
             placeholder="e.g. Short story, journal entry, essay on habits..."
             style={{ ...s.input, marginBottom: 12 }}
           />
-
           <button
             onClick={() => window.open(DRIVE_LINK, "_blank")}
             style={{
@@ -896,7 +902,6 @@ export default function App() {
           >
             📁 Open Writing Folder in Drive →
           </button>
-
           <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>
             📊 Progress log for {fmt(date)}
           </div>
