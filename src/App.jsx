@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
-// ─── CONSTANTS ───────────────────────────────────────────────
 const TOTAL_BOOKS = 12;
 const WATER_CUPS = 10;
 const ML_PER_CUP = 300;
-
 const DRIVE_LINK = "https://drive.google.com/drive/folders/1koRdqfXHhZBloWXyYekM_DFFQg6oTDbF?usp=drive_link";
 
 const QURAN_VERSES = [
@@ -110,20 +108,20 @@ const QURAN_VERSES = [
 ];
 
 const SCHEDULE = [
-  { time: "5:15am",           label: "Fajr",                 icon: "🌙", type: "prayer" },
-  { time: "9:30–11am",        label: "Focus Time",           icon: "🎧", type: "focus" },
-  { time: "11–11:50am",       label: "Eng, Ops & CS Review", icon: "🔵", type: "meeting" },
-  { time: "11:10am",          label: "Short Break",          icon: "☕", type: "break" },
-  { time: "11:30am–12:30pm",  label: "Admin Block",          icon: "📋", type: "admin" },
-  { time: "12:45–1:45pm",     label: "Lunch Break",          icon: "🍽️", type: "break" },
-  { time: "1:30pm",           label: "Dhuhr",                icon: "🕌", type: "prayer" },
-  { time: "2–5pm",            label: "Focus Time",           icon: "🎧", type: "focus" },
-  { time: "3:45pm",           label: "Asr",                  icon: "🕌", type: "prayer" },
-  { time: "4–4:50pm",         label: "Growth Team Sync",     icon: "🔵", type: "meeting" },
-  { time: "5:10pm",           label: "Break",                icon: "☕", type: "break" },
-  { time: "6pm",              label: "Small Task",           icon: "⭕", type: "admin" },
-  { time: "6:30pm",           label: "Maghrib",              icon: "🌅", type: "prayer" },
-  { time: "7:30pm",           label: "Isha",                 icon: "🌙", type: "prayer" },
+  { time: "5:15am",          label: "Fajr",                 icon: "🌙", type: "prayer"  },
+  { time: "9:30–11am",       label: "Focus Time",           icon: "🎧", type: "focus"   },
+  { time: "11–11:50am",      label: "Eng, Ops & CS Review", icon: "🔵", type: "meeting" },
+  { time: "11:10am",         label: "Short Break",          icon: "☕", type: "break"   },
+  { time: "11:30am–12:30pm", label: "Admin Block",          icon: "📋", type: "admin"   },
+  { time: "12:45–1:45pm",    label: "Lunch Break",          icon: "🍽️", type: "break"  },
+  { time: "1:30pm",          label: "Dhuhr",                icon: "🕌", type: "prayer"  },
+  { time: "2–5pm",           label: "Focus Time",           icon: "🎧", type: "focus"   },
+  { time: "3:45pm",          label: "Asr",                  icon: "🕌", type: "prayer"  },
+  { time: "4–4:50pm",        label: "Growth Team Sync",     icon: "🔵", type: "meeting" },
+  { time: "5:10pm",          label: "Break",                icon: "☕", type: "break"   },
+  { time: "6pm",             label: "Small Task",           icon: "⭕", type: "admin"   },
+  { time: "6:30pm",          label: "Maghrib",              icon: "🌅", type: "prayer"  },
+  { time: "7:30pm",          label: "Isha",                 icon: "🌙", type: "prayer"  },
 ];
 
 const TASKS = [
@@ -132,14 +130,14 @@ const TASKS = [
   { text: "Asr",              tag: "prayer" },
   { text: "Maghrib",          tag: "prayer" },
   { text: "Isha",             tag: "prayer" },
-  { text: "Write 1000 words", tag: "habit" },
-  { text: "Walk / sunlight",  tag: "habit" },
-  { text: "Breakfast",        tag: "habit" },
-  { text: "Lunch",            tag: "habit" },
-  { text: "Dinner",           tag: "habit" },
-  { text: "Deep work",        tag: "work" },
-  { text: "Meetings",         tag: "work" },
-  { text: "Admin",            tag: "work" },
+  { text: "Write 1000 words", tag: "habit"  },
+  { text: "Walk / sunlight",  tag: "habit"  },
+  { text: "Breakfast",        tag: "habit"  },
+  { text: "Lunch",            tag: "habit"  },
+  { text: "Dinner",           tag: "habit"  },
+  { text: "Deep work",        tag: "work"   },
+  { text: "Meetings",         tag: "work"   },
+  { text: "Admin",            tag: "work"   },
 ];
 
 const TAG_STYLE = {
@@ -149,27 +147,18 @@ const TAG_STYLE = {
 };
 
 const SCH_STYLE = {
-  focus:   "#1D3A6B",
-  meeting: "#1a2d4a",
-  break:   "#1a1f26",
-  admin:   "#1e2d20",
-  prayer:  "#2d1f47",
+  focus: "#1D3A6B", meeting: "#1a2d4a", break: "#1a1f26", admin: "#1e2d20", prayer: "#2d1f47",
 };
 
-// ─── HELPERS ─────────────────────────────────────────────────
 function toKey(d) {
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-    .toISOString().split("T")[0];
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split("T")[0];
 }
-
 function fmt(d) {
   return d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
 }
-
 function fmtShort(d) {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
-
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 6)  return "السلام عليكم 🌙";
@@ -178,21 +167,12 @@ function getGreeting() {
   if (h < 20) return "السلام عليكم 🌅";
   return "السلام عليكم 🌙";
 }
-
 function freshState() {
   return {
-    done: {},
-    notes: "",
-    journal: ["", "", ""],
-    waterCups: 0,
-    period: false,
-    reading: "",
-    bookTitle: "",
-    bookPoints: "",
-    booksCompleted: 0,
+    done: {}, notes: "", journal: ["", "", ""], waterCups: 0, period: false,
+    reading: "", bookTitle: "", bookPoints: "", booksCompleted: 0,
     meals: { breakfast: "", lunch: "", dinner: "", snacks: "" },
-    writingNote: "",
-    writingTopic: "",
+    writingNote: "", writingTopic: "",
     officeTasks: [
       { id: 1, text: "", done: false },
       { id: 2, text: "", done: false },
@@ -201,27 +181,14 @@ function freshState() {
   };
 }
 
-// ─── THEME ───────────────────────────────────────────────────
 const C = {
-  bg:      "#07090d",
-  surface: "#0e1117",
-  card:    "#131921",
-  card2:   "#161d27",
-  border:  "#1e2837",
-  border2: "#253347",
-  text:    "#e8eef5",
-  muted:   "#5a6a7e",
-  muted2:  "#7a8fa8",
-  green:   "#10b981",
-  green2:  "#059669",
-  teal:    "#0d9488",
-  blue:    "#3b82f6",
-  purple:  "#8b5cf6",
-  gold:    "#f59e0b",
-  period:  "#ec4899",
-  grad1:   "linear-gradient(135deg, #10b981, #0d9488)",
-  grad2:   "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-  grad3:   "linear-gradient(135deg, #f59e0b, #ef4444)",
+  bg: "#07090d", surface: "#0e1117", card: "#131921", card2: "#161d27",
+  border: "#1e2837", border2: "#253347", text: "#e8eef5", muted: "#5a6a7e",
+  muted2: "#7a8fa8", green: "#10b981", green2: "#059669", teal: "#0d9488",
+  blue: "#3b82f6", purple: "#8b5cf6", gold: "#f59e0b", period: "#ec4899",
+  grad1: "linear-gradient(135deg, #10b981, #0d9488)",
+  grad2: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+  grad3: "linear-gradient(135deg, #f59e0b, #ef4444)",
 };
 
 const s = {
@@ -229,8 +196,7 @@ const s = {
     width: "100%", padding: "8px 12px", background: "#0a0f16",
     border: `1px solid ${C.border}`, borderRadius: 8, color: C.text,
     fontSize: 13, boxSizing: "border-box", outline: "none",
-    fontFamily: "'Outfit', -apple-system, sans-serif",
-    transition: "border-color 0.2s",
+    fontFamily: "'Outfit', -apple-system, sans-serif", transition: "border-color 0.2s",
   },
   btn: {
     padding: "8px 18px", background: C.green, border: "none",
@@ -240,19 +206,16 @@ const s = {
   nav: {
     padding: "7px 16px", background: C.card, border: `1px solid ${C.border2}`,
     borderRadius: 9, color: C.text, cursor: "pointer", fontSize: 12, fontWeight: 600,
-    transition: "all 0.15s", letterSpacing: "0.01em",
-    display: "flex", alignItems: "center", gap: 5,
+    transition: "all 0.15s", letterSpacing: "0.01em", display: "flex", alignItems: "center", gap: 5,
   },
 };
 
-// ─── SUB-COMPONENTS ──────────────────────────────────────────
 function Card({ children, style, glow }) {
   return (
     <div style={{
       background: C.card, borderRadius: 16, padding: "16px 18px",
       border: `1px solid ${glow ? C.border2 : C.border}`,
-      boxShadow: glow ? `0 0 24px ${glow}18` : "none",
-      ...style
+      boxShadow: glow ? `0 0 24px ${glow}18` : "none", ...style
     }}>
       {children}
     </div>
@@ -279,21 +242,16 @@ function Stat({ label, value, accent }) {
       textAlign: "center", border: `1px solid ${C.border}`,
       position: "relative", overflow: "hidden",
     }}>
-      <div style={{
-        position: "absolute", inset: 0, background: `${accent || C.green}08`,
-        borderRadius: 12,
-      }} />
+      <div style={{ position: "absolute", inset: 0, background: `${accent || C.green}08`, borderRadius: 12 }} />
       <div style={{ fontSize: 24, fontWeight: 800, color: accent || C.text, lineHeight: 1, fontFamily: "'Outfit', sans-serif" }}>{value}</div>
       <div style={{ fontSize: 9, color: C.muted, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
     </div>
   );
 }
 
-// ─── MAIN APP ────────────────────────────────────────────────
 export default function App() {
   const [user, setUser] = useState(localStorage.getItem("cc_user") || "");
   const [nameInput, setNameInput] = useState("");
-
   const [date, setDate] = useState(new Date());
   const today = new Date();
 
@@ -316,106 +274,56 @@ export default function App() {
   ]);
 
   const [waterStreak, setWaterStreak] = useState(0);
-  const [loaded,      setLoaded]      = useState(false);
-  const [saving,      setSaving]      = useState(false);
-  const [verseIdx,    setVerseIdx]    = useState(0);
-  const [verseAnim,   setVerseAnim]   = useState(true);
+  // ── KEY CHANGE: instead of a boolean `loaded`, store the dayKey that was loaded ──
+  // saveable is only true when the currently-displayed state matches what's in DB
+  const [saveable,  setSaveable]  = useState(false);
+  const [saving,    setSaving]    = useState(false);
+  const [verseIdx,  setVerseIdx]  = useState(0);
+  const [verseAnim, setVerseAnim] = useState(true);
 
-  const bookBarRef    = useRef(null);
-  const isDragging    = useRef(false);
-  // ✅ FIX: track which dayKey was actually loaded to prevent stale saves
-  const loadedDayKey  = useRef("");
+  const bookBarRef = useRef(null);
+  const isDragging = useRef(false);
 
   const dayKey  = toKey(date);
   const isToday = dayKey === toKey(today);
-
   const maxDate = new Date(2026, 11, 31);
   const isAtMax = toKey(date) >= toKey(maxDate);
-
   const isWeekend = [0, 6].includes(date.getDay());
   const readTarget = isWeekend ? "20–30 pages" : "10–15 pages";
-
   const isFuture = date > today;
   const dayLabel = isToday ? "Today" : isFuture ? `📅 ${fmtShort(date)}` : `📅 Past · ${fmtShort(date)}`;
 
-  // Rotate Quran verse every 30 seconds
+  // Rotate verse every 30s
   useEffect(() => {
     const seed = Math.floor(Date.now() / 30000) % QURAN_VERSES.length;
     setVerseIdx(seed);
     const interval = setInterval(() => {
       setVerseAnim(false);
-      setTimeout(() => {
-        setVerseIdx(i => (i + 1) % QURAN_VERSES.length);
-        setVerseAnim(true);
-      }, 400);
+      setTimeout(() => { setVerseIdx(i => (i + 1) % QURAN_VERSES.length); setVerseAnim(true); }, 400);
     }, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // LOGIN
+  // LOGIN screen
   if (!user) {
     return (
-      <div style={{
-        display: "flex", justifyContent: "center", alignItems: "center",
-        minHeight: "100vh", background: C.bg,
-        fontFamily: "'Outfit', -apple-system, sans-serif",
-      }}>
-        <div style={{
-          background: C.card, padding: "40px 36px", borderRadius: 24,
-          border: `1px solid ${C.border2}`, width: 360, maxWidth: "90vw",
-          boxShadow: `0 0 60px ${C.green}15`,
-          position: "relative", overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", top: -60, right: -60, width: 180, height: 180,
-            borderRadius: "50%", background: `${C.green}15`, filter: "blur(40px)",
-          }} />
-          <div style={{
-            position: "absolute", bottom: -40, left: -40, width: 120, height: 120,
-            borderRadius: "50%", background: `${C.purple}10`, filter: "blur(30px)",
-          }} />
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: C.bg, fontFamily: "'Outfit', -apple-system, sans-serif" }}>
+        <div style={{ background: C.card, padding: "40px 36px", borderRadius: 24, border: `1px solid ${C.border2}`, width: 360, maxWidth: "90vw", boxShadow: `0 0 60px ${C.green}15`, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, borderRadius: "50%", background: `${C.green}15`, filter: "blur(40px)" }} />
+          <div style={{ position: "absolute", bottom: -40, left: -40, width: 120, height: 120, borderRadius: "50%", background: `${C.purple}10`, filter: "blur(30px)" }} />
           <div style={{ position: "relative" }}>
             <div style={{ fontSize: 42, marginBottom: 8, textAlign: "center" }}>🌙</div>
-            <h2 style={{
-              margin: "0 0 4px", fontSize: 26, fontWeight: 800,
-              textAlign: "center", color: C.text,
-              background: C.grad1, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>Welcome to Daily Tracker</h2>
-            <p style={{
-              color: C.muted2, fontSize: 13, marginBottom: 6,
-              textAlign: "center", lineHeight: 1.6,
-            }}>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</p>
-            <p style={{
-              color: C.muted, fontSize: 12, marginBottom: 24,
-              textAlign: "center", fontStyle: "italic",
-            }}>Your personal command centre — powered by faith & purpose</p>
+            <h2 style={{ margin: "0 0 4px", fontSize: 26, fontWeight: 800, textAlign: "center", background: C.grad1, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Welcome to Daily Tracker</h2>
+            <p style={{ color: C.muted2, fontSize: 13, marginBottom: 6, textAlign: "center", lineHeight: 1.6 }}>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</p>
+            <p style={{ color: C.muted, fontSize: 12, marginBottom: 24, textAlign: "center", fontStyle: "italic" }}>Your personal command centre — powered by faith & purpose</p>
             <input
-              value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === "Enter" && nameInput.trim()) {
-                  localStorage.setItem("cc_user", nameInput.trim());
-                  setUser(nameInput.trim());
-                }
-              }}
+              value={nameInput} onChange={e => setNameInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && nameInput.trim()) { localStorage.setItem("cc_user", nameInput.trim()); setUser(nameInput.trim()); } }}
               placeholder="Enter your name..."
-              style={{
-                ...s.input, marginBottom: 12, padding: "11px 14px", fontSize: 14,
-                borderRadius: 10, textAlign: "center",
-              }}
+              style={{ ...s.input, marginBottom: 12, padding: "11px 14px", fontSize: 14, borderRadius: 10, textAlign: "center" }}
             />
-            <button
-              style={{
-                ...s.btn, width: "100%", padding: "11px 0", fontSize: 14,
-                borderRadius: 10, background: C.grad1, fontWeight: 700,
-              }}
-              onClick={() => {
-                if (nameInput.trim()) {
-                  localStorage.setItem("cc_user", nameInput.trim());
-                  setUser(nameInput.trim());
-                }
-              }}
-            >
+            <button style={{ ...s.btn, width: "100%", padding: "11px 0", fontSize: 14, borderRadius: 10, background: C.grad1, fontWeight: 700 }}
+              onClick={() => { if (nameInput.trim()) { localStorage.setItem("cc_user", nameInput.trim()); setUser(nameInput.trim()); } }}>
               Start tracking →
             </button>
           </div>
@@ -424,11 +332,12 @@ export default function App() {
     );
   }
 
-  // ── LOAD — reset to fresh first, then hydrate from DB ──
+  // ══════════════════════════════════════════════════════════
+  // LOAD  — the only correct pattern: cancellation token
+  // ══════════════════════════════════════════════════════════
   useEffect(() => {
-    // ✅ FIX: mark as not loaded and clear the loadedDayKey immediately
-    setLoaded(false);
-    loadedDayKey.current = "";
+    // Every time dayKey changes, immediately block saves and show blank slate
+    setSaveable(false);
 
     const blank = freshState();
     setDone(blank.done);
@@ -445,15 +354,17 @@ export default function App() {
     setWritingTopic(blank.writingTopic);
     setOfficeTasks(blank.officeTasks);
 
-    // Capture the dayKey for this specific load so we can check it hasn't changed
-    const thisLoadKey = dayKey;
+    // This flag will be set to true if this effect is cleaned up before the
+    // async fetch finishes (i.e. user navigated to another day mid-fetch)
+    let cancelled = false;
 
     (async () => {
-      const { data } = await supabase.from("tracker").select("data")
-        .eq("user_name", user).eq("date", thisLoadKey).maybeSingle();
+      const { data } = await supabase
+        .from("tracker").select("data")
+        .eq("user_name", user).eq("date", dayKey).maybeSingle();
 
-      // ✅ FIX: if the user navigated away before this load finished, abort
-      if (thisLoadKey !== toKey(new Date(date))) return;
+      // If user already moved to another day, throw this result away entirely
+      if (cancelled) return;
 
       if (data?.data) {
         const d = data.data;
@@ -476,62 +387,57 @@ export default function App() {
         ]);
       }
 
-      // Water streak calc
-      const keys = Array.from({ length: 30 }, (_, i) => {
-        const d2 = new Date(today); d2.setDate(today.getDate() - i - 1);
-        return toKey(d2);
+      // Water streak
+      const streakKeys = Array.from({ length: 30 }, (_, i) => {
+        const d2 = new Date(today); d2.setDate(today.getDate() - i - 1); return toKey(d2);
       });
       const { data: history } = await supabase.from("tracker").select("date,data")
-        .eq("user_name", user).in("date", keys);
+        .eq("user_name", user).in("date", streakKeys);
+
+      if (cancelled) return;
 
       let streak = 0;
       for (let i = 0; i < 30; i++) {
         const d2 = new Date(today); d2.setDate(today.getDate() - i - 1);
-        const k = toKey(d2);
-        const row = history?.find(r => r.date === k);
-        if (row?.data?.waterCups >= WATER_CUPS) streak++;
-        else break;
+        const row = history?.find(r => r.date === toKey(d2));
+        if (row?.data?.waterCups >= WATER_CUPS) streak++; else break;
       }
       setWaterStreak(streak);
 
-      // ✅ FIX: only mark loaded after we've confirmed this is still the right day
-      loadedDayKey.current = thisLoadKey;
-      setLoaded(true);
+      // ✅ Only NOW allow saves — data for this day is fully loaded
+      setSaveable(true);
     })();
+
+    // Cleanup: mark this load as cancelled when dayKey changes
+    return () => { cancelled = true; };
   }, [dayKey, user]);
 
-  // ── SAVE ──
+  // ══════════════════════════════════════════════════════════
+  // SAVE  — only runs when saveable is true (load complete)
+  // ══════════════════════════════════════════════════════════
   useEffect(() => {
-    // ✅ FIX: only save when loaded AND the loaded data belongs to the current dayKey
-    if (!loaded || loadedDayKey.current !== dayKey) return;
+    if (!saveable) return;   // ← blocks ALL saves until load is done
 
     (async () => {
       setSaving(true);
       await supabase.from("tracker").upsert(
         {
           user_name: user, date: dayKey,
-          data: {
-            done, notes, journal, waterCups, period, reading,
-            bookTitle, bookPoints, booksCompleted, meals,
-            writingNote, writingTopic, officeTasks,
-          }
+          data: { done, notes, journal, waterCups, period, reading, bookTitle, bookPoints, booksCompleted, meals, writingNote, writingTopic, officeTasks },
         },
         { onConflict: "user_name,date" }
       );
       setSaving(false);
     })();
-  }, [done, notes, journal, waterCups, period, reading, bookTitle, bookPoints, booksCompleted, meals, writingNote, writingTopic, officeTasks, loaded, dayKey]);
+  }, [done, notes, journal, waterCups, period, reading, bookTitle, bookPoints, booksCompleted, meals, writingNote, writingTopic, officeTasks, saveable]);
 
-  // ── HELPERS ──
+  // helpers
   const toggle = (i) => {
-    const task = TASKS[i];
-    if (period && task.tag === "prayer") return;
+    if (period && TASKS[i].tag === "prayer") return;
     setDone(p => ({ ...p, [i]: !p[i] }));
   };
-
   const changeDay = (dir) => {
-    const d = new Date(date);
-    d.setDate(d.getDate() + dir);
+    const d = new Date(date); d.setDate(d.getDate() + dir);
     if (d > maxDate) return;
     setDate(d);
   };
@@ -543,9 +449,9 @@ export default function App() {
   const pct = Math.round((doneCount / TASKS.length) * 100) || 0;
   const waterML = waterCups * ML_PER_CUP;
 
-  const addOfficeTask = () => setOfficeTasks(prev => [...prev, { id: Date.now(), text: "", done: false }]);
-  const updateOfficeTask = (id, field, val) => setOfficeTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: val } : t));
-  const removeOfficeTask = (id) => setOfficeTasks(prev => prev.filter(t => t.id !== id));
+  const addOfficeTask    = () => setOfficeTasks(p => [...p, { id: Date.now(), text: "", done: false }]);
+  const updateOfficeTask = (id, field, val) => setOfficeTasks(p => p.map(t => t.id === id ? { ...t, [field]: val } : t));
+  const removeOfficeTask = (id) => setOfficeTasks(p => p.filter(t => t.id !== id));
 
   const officeDone  = officeTasks.filter(t => t.done && t.text.trim()).length;
   const officeTotal = officeTasks.filter(t => t.text.trim()).length;
@@ -553,115 +459,52 @@ export default function App() {
   const handleBookDrag = (clientX) => {
     if (!bookBarRef.current) return;
     const rect = bookBarRef.current.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    setBooksCompleted(Math.round(ratio * TOTAL_BOOKS));
+    setBooksCompleted(Math.round(Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)) * TOTAL_BOOKS));
   };
 
   const verse = QURAN_VERSES[verseIdx];
 
-  // ── RENDER ──
   return (
-    <div style={{
-      display: "flex", background: C.bg, color: C.text, minHeight: "100vh",
-      fontFamily: "'Outfit', -apple-system, sans-serif",
-    }}>
+    <div style={{ display: "flex", background: C.bg, color: C.text, minHeight: "100vh", fontFamily: "'Outfit', -apple-system, sans-serif" }}>
 
-      {/* ══════════ LEFT PANEL ══════════ */}
-      <div style={{
-        flex: "0 0 370px", borderRight: `1px solid ${C.border}`,
-        display: "flex", flexDirection: "column", overflowY: "auto",
-      }}>
+      {/* ══ LEFT PANEL ══ */}
+      <div style={{ flex: "0 0 370px", borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
 
-        {/* Header */}
-        <div style={{
-          padding: "20px 20px 16px",
-          background: `linear-gradient(180deg, ${C.green}08 0%, transparent 100%)`,
-          borderBottom: `1px solid ${C.border}`,
-          marginBottom: 4,
-        }}>
+        <div style={{ padding: "20px 20px 16px", background: `linear-gradient(180deg, ${C.green}08 0%, transparent 100%)`, borderBottom: `1px solid ${C.border}`, marginBottom: 4 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.green, letterSpacing: "0.04em", marginBottom: 2 }}>{getGreeting()}</div>
-              <h2 style={{
-                margin: "0 0 0", fontSize: 20, fontWeight: 800, lineHeight: 1.2,
-                background: C.grad1, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              }}>
-                {user} ✨
-              </h2>
+              <h2 style={{ margin: "0 0 0", fontSize: 20, fontWeight: 800, lineHeight: 1.2, background: C.grad1, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{user} ✨</h2>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{dayLabel}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{
-                fontSize: 11, fontWeight: 600, color: saving ? C.gold : C.green,
-                display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end",
-              }}>
-                <div style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: saving ? C.gold : C.green,
-                  boxShadow: `0 0 6px ${saving ? C.gold : C.green}`,
-                }} />
+              <div style={{ fontSize: 11, fontWeight: 600, color: saving ? C.gold : C.green, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: saving ? C.gold : C.green, boxShadow: `0 0 6px ${saving ? C.gold : C.green}` }} />
                 {saving ? "saving..." : "saved"}
               </div>
-              <div style={{
-                fontSize: 10, color: C.muted, marginTop: 4,
-                background: C.surface, padding: "2px 8px", borderRadius: 6,
-                border: `1px solid ${C.border}`,
-              }}>{fmt(date)}</div>
+              <div style={{ fontSize: 10, color: C.muted, marginTop: 4, background: C.surface, padding: "2px 8px", borderRadius: 6, border: `1px solid ${C.border}` }}>{fmt(date)}</div>
             </div>
           </div>
 
           {/* Date Nav */}
-          <div style={{
-            display: "flex", gap: 6, alignItems: "center",
-            background: C.surface, borderRadius: 12, padding: "8px 10px",
-            border: `1px solid ${C.border}`, marginBottom: 14,
-          }}>
-            <button style={{
-              ...s.nav, background: "transparent", border: `1px solid ${C.border}`,
-              borderRadius: 8, padding: "6px 12px", fontSize: 12, color: C.muted2,
-            }} onClick={() => changeDay(-1)}>← Prev</button>
-
+          <div style={{ display: "flex", gap: 6, alignItems: "center", background: C.surface, borderRadius: 12, padding: "8px 10px", border: `1px solid ${C.border}`, marginBottom: 14 }}>
+            <button style={{ ...s.nav, background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 12px", fontSize: 12, color: C.muted2 }} onClick={() => changeDay(-1)}>← Prev</button>
             <div style={{ flex: 1, textAlign: "center" }}>
-              {!isToday ? (
-                <button style={{
-                  background: `${C.green}18`, border: `1px solid ${C.green}40`,
-                  borderRadius: 8, padding: "5px 14px", color: C.green,
-                  cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.03em",
-                }} onClick={() => setDate(new Date())}>↩ Jump to Today</button>
-              ) : (
-                <span style={{ fontSize: 11, color: C.green, fontWeight: 700 }}>✦ Today</span>
-              )}
+              {!isToday
+                ? <button style={{ background: `${C.green}18`, border: `1px solid ${C.green}40`, borderRadius: 8, padding: "5px 14px", color: C.green, cursor: "pointer", fontSize: 11, fontWeight: 700 }} onClick={() => setDate(new Date())}>↩ Jump to Today</button>
+                : <span style={{ fontSize: 11, color: C.green, fontWeight: 700 }}>✦ Today</span>}
             </div>
-
-            <button style={{
-              ...s.nav, background: "transparent",
-              border: `1px solid ${isAtMax ? C.border : C.border2}`,
-              borderRadius: 8, padding: "6px 12px", fontSize: 12,
-              color: isAtMax ? C.muted : C.muted2,
-              cursor: isAtMax ? "not-allowed" : "pointer",
-              opacity: isAtMax ? 0.4 : 1,
-            }} onClick={() => { if (!isAtMax) changeDay(1); }} disabled={isAtMax}>Next →</button>
+            <button style={{ ...s.nav, background: "transparent", border: `1px solid ${isAtMax ? C.border : C.border2}`, borderRadius: 8, padding: "6px 12px", fontSize: 12, color: isAtMax ? C.muted : C.muted2, cursor: isAtMax ? "not-allowed" : "pointer", opacity: isAtMax ? 0.4 : 1 }} onClick={() => { if (!isAtMax) changeDay(1); }} disabled={isAtMax}>Next →</button>
           </div>
 
           {isFuture && !isToday && (
-            <div style={{
-              marginBottom: 10, padding: "8px 12px", borderRadius: 10,
-              background: `${C.blue}12`, border: `1px solid ${C.blue}30`,
-              fontSize: 11, color: C.blue, display: "flex", alignItems: "center", gap: 6,
-            }}>
+            <div style={{ marginBottom: 10, padding: "8px 12px", borderRadius: 10, background: `${C.blue}12`, border: `1px solid ${C.blue}30`, fontSize: 11, color: C.blue, display: "flex", alignItems: "center", gap: 6 }}>
               🗓️ <strong>Future day</strong> — plan ahead for {fmt(date)}
             </div>
           )}
 
-          {/* Quran verse */}
-          <div style={{
-            background: `linear-gradient(135deg, ${C.purple}12, ${C.green}08)`,
-            border: `1px solid ${C.purple}30`, borderRadius: 12, padding: "12px 14px",
-            transition: "opacity 0.4s", opacity: verseAnim ? 1 : 0,
-          }}>
-            <div style={{ fontSize: 9, color: C.purple, fontWeight: 700, letterSpacing: "0.12em", marginBottom: 5, textTransform: "uppercase" }}>
-              ✦ Quranic Reminder
-            </div>
+          <div style={{ background: `linear-gradient(135deg, ${C.purple}12, ${C.green}08)`, border: `1px solid ${C.purple}30`, borderRadius: 12, padding: "12px 14px", transition: "opacity 0.4s", opacity: verseAnim ? 1 : 0 }}>
+            <div style={{ fontSize: 9, color: C.purple, fontWeight: 700, letterSpacing: "0.12em", marginBottom: 5, textTransform: "uppercase" }}>✦ Quranic Reminder</div>
             <div style={{ fontSize: 12.5, color: "#d4bbff", lineHeight: 1.6, fontStyle: "italic" }}>"{verse.text}"</div>
             <div style={{ fontSize: 10, color: C.muted2, marginTop: 5, textAlign: "right", fontWeight: 600 }}>— Quran {verse.ref}</div>
           </div>
@@ -676,49 +519,25 @@ export default function App() {
             <Stat label="Water" value={`${waterCups}/${WATER_CUPS}`} accent={C.blue} />
           </div>
           <div style={{ height: 4, background: "#0a0f16", borderRadius: 99, overflow: "hidden" }}>
-            <div style={{
-              height: 4, borderRadius: 99,
-              background: pct === 100 ? C.grad1 : `linear-gradient(90deg, ${C.green}, ${C.teal})`,
-              width: `${pct}%`, transition: "width 0.5s ease",
-            }} />
+            <div style={{ height: 4, borderRadius: 99, background: pct === 100 ? C.grad1 : `linear-gradient(90deg, ${C.green}, ${C.teal})`, width: `${pct}%`, transition: "width 0.5s ease" }} />
           </div>
-          {pct === 100 && (
-            <div style={{ textAlign: "center", fontSize: 11, color: C.green, marginTop: 6, fontWeight: 700 }}>
-              🎉 MashAllah! Perfect day!
-            </div>
-          )}
+          {pct === 100 && <div style={{ textAlign: "center", fontSize: 11, color: C.green, marginTop: 6, fontWeight: 700 }}>🎉 MashAllah! Perfect day!</div>}
         </div>
 
         {/* Period toggle */}
         <div style={{ padding: "0 20px", marginBottom: 12 }}>
-          <div onClick={() => setPeriod(p => !p)} style={{
-            display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
-            borderRadius: 12, cursor: "pointer",
-            background: period ? "#2d1020" : C.card,
-            border: `1px solid ${period ? C.period + "60" : C.border}`,
-            transition: "all 0.2s",
-          }}>
-            <div style={{
-              width: 36, height: 20, borderRadius: 99,
-              background: period ? C.period : "#1e2837", position: "relative", flexShrink: 0,
-              transition: "background 0.2s",
-            }}>
-              <div style={{
-                position: "absolute", top: 2, left: period ? 18 : 2, width: 16, height: 16,
-                borderRadius: "50%", background: "#fff", transition: "left 0.2s",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-              }} />
+          <div onClick={() => setPeriod(p => !p)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12, cursor: "pointer", background: period ? "#2d1020" : C.card, border: `1px solid ${period ? C.period + "60" : C.border}`, transition: "all 0.2s" }}>
+            <div style={{ width: 36, height: 20, borderRadius: 99, background: period ? C.period : "#1e2837", position: "relative", flexShrink: 0, transition: "background 0.2s" }}>
+              <div style={{ position: "absolute", top: 2, left: period ? 18 : 2, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: period ? C.period : C.text }}>🌸 Period Mode</div>
-              <div style={{ fontSize: 11, color: C.muted }}>
-                {period ? "Prayers paused — habits & work continue 💪" : "Toggle on period days (pauses prayers only)"}
-              </div>
+              <div style={{ fontSize: 11, color: C.muted }}>{period ? "Prayers paused — habits & work continue 💪" : "Toggle on period days (pauses prayers only)"}</div>
             </div>
           </div>
         </div>
 
-        {/* Task sections */}
+        {/* Tasks */}
         <div style={{ padding: "0 20px", flex: 1 }}>
           {["prayer", "habit", "work"].map(tag => {
             const list = grouped[tag];
@@ -729,46 +548,17 @@ export default function App() {
               <div key={tag} style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                   <SectionHead accent={ts.accent}>{ts.label}</SectionHead>
-                  <span style={{
-                    fontSize: 10, color: ts.accent, fontWeight: 700,
-                    background: ts.bg, padding: "2px 8px", borderRadius: 6,
-                  }}>{tagDone}/{list.length}</span>
+                  <span style={{ fontSize: 10, color: ts.accent, fontWeight: 700, background: ts.bg, padding: "2px 8px", borderRadius: 6 }}>{tagDone}/{list.length}</span>
                 </div>
-                {isPeriodBlocked && (
-                  <div style={{
-                    padding: "8px 12px", borderRadius: 10, marginBottom: 8,
-                    background: "#2d1020", border: `1px solid ${C.period}40`,
-                    fontSize: 11, color: C.period, textAlign: "center",
-                  }}>
-                    🌸 Prayers paused on period days — it's okay 💗
-                  </div>
-                )}
+                {isPeriodBlocked && <div style={{ padding: "8px 12px", borderRadius: 10, marginBottom: 8, background: "#2d1020", border: `1px solid ${C.period}40`, fontSize: 11, color: C.period, textAlign: "center" }}>🌸 Prayers paused on period days — it's okay 💗</div>}
                 {list.map(t => {
                   const isDone = !!done[t.i];
                   return (
-                    <div key={t.i} onClick={() => toggle(t.i)} style={{
-                      display: "flex", alignItems: "center", gap: 10, padding: "9px 12px",
-                      borderRadius: 10, marginBottom: 5,
-                      cursor: isPeriodBlocked ? "not-allowed" : "pointer",
-                      background: isDone ? ts.bg : C.card,
-                      border: `1px solid ${isDone ? ts.accent + "40" : C.border}`,
-                      opacity: isPeriodBlocked ? 0.3 : 1,
-                      transition: "all 0.15s",
-                    }}>
-                      <div style={{
-                        width: 18, height: 18, borderRadius: 6, flexShrink: 0,
-                        border: `1.5px solid ${isDone ? ts.accent : C.border}`,
-                        background: isDone ? ts.accent : "transparent",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        transition: "all 0.15s",
-                      }}>
+                    <div key={t.i} onClick={() => toggle(t.i)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, marginBottom: 5, cursor: isPeriodBlocked ? "not-allowed" : "pointer", background: isDone ? ts.bg : C.card, border: `1px solid ${isDone ? ts.accent + "40" : C.border}`, opacity: isPeriodBlocked ? 0.3 : 1, transition: "all 0.15s" }}>
+                      <div style={{ width: 18, height: 18, borderRadius: 6, flexShrink: 0, border: `1.5px solid ${isDone ? ts.accent : C.border}`, background: isDone ? ts.accent : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
                         {isDone && <span style={{ color: "#000", fontSize: 10, fontWeight: 800 }}>✓</span>}
                       </div>
-                      <span style={{
-                        fontSize: 13, flex: 1,
-                        textDecoration: isDone ? "line-through" : "none",
-                        color: isDone ? C.muted : C.text,
-                      }}>{t.text}</span>
+                      <span style={{ fontSize: 13, flex: 1, textDecoration: isDone ? "line-through" : "none", color: isDone ? C.muted : C.text }}>{t.text}</span>
                     </div>
                   );
                 })}
@@ -781,81 +571,42 @@ export default function App() {
         <div style={{ padding: "0 20px 24px" }}>
           <SectionHead accent={C.blue}>🗓 Today's Schedule</SectionHead>
           {SCHEDULE.map((item, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
-              borderRadius: 9, marginBottom: 4,
-              background: SCH_STYLE[item.type] || SCH_STYLE.admin,
-              border: `1px solid ${item.type === "prayer" ? C.purple + "40" : C.border}`,
-            }}>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderRadius: 9, marginBottom: 4, background: SCH_STYLE[item.type] || SCH_STYLE.admin, border: `1px solid ${item.type === "prayer" ? C.purple + "40" : C.border}` }}>
               <span style={{ fontSize: 14 }}>{item.icon}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: item.type === "prayer" ? "#c084fc" : C.text }}>
-                  {item.label}
-                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: item.type === "prayer" ? "#c084fc" : C.text }}>{item.label}</div>
                 <div style={{ fontSize: 10, color: C.muted }}>{item.time}</div>
               </div>
-              <div style={{
-                width: 6, height: 6, borderRadius: "50%",
-                background: item.type === "prayer" ? C.purple
-                  : item.type === "focus" ? C.blue
-                  : item.type === "meeting" ? C.purple
-                  : item.type === "break" ? C.muted
-                  : C.green,
-              }} />
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: item.type === "prayer" ? C.purple : item.type === "focus" ? C.blue : item.type === "meeting" ? C.purple : item.type === "break" ? C.muted : C.green }} />
             </div>
           ))}
         </div>
       </div>
 
-      {/* ══════════ MIDDLE PANEL ══════════ */}
+      {/* ══ MIDDLE PANEL ══ */}
       <div style={{ flex: 1, padding: "20px 18px", overflowY: "auto", borderRight: `1px solid ${C.border}` }}>
 
-        {/* Water Tracker */}
+        {/* Water */}
         <Card style={{ marginBottom: 16 }} glow={C.blue}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <SectionHead accent={C.blue}>💧 Water Intake</SectionHead>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              {waterStreak > 0 && (
-                <span style={{
-                  fontSize: 11, background: `${C.blue}20`, color: C.blue,
-                  padding: "3px 10px", borderRadius: 20, fontWeight: 700,
-                  border: `1px solid ${C.blue}30`,
-                }}>🔥 {waterStreak}d streak</span>
-              )}
-              <span style={{
-                fontSize: 12, color: waterCups >= WATER_CUPS ? C.green : C.muted2,
-                fontWeight: 700, background: C.surface, padding: "3px 10px",
-                borderRadius: 8, border: `1px solid ${C.border}`,
-              }}>{waterML}ml / 3000ml</span>
+              {waterStreak > 0 && <span style={{ fontSize: 11, background: `${C.blue}20`, color: C.blue, padding: "3px 10px", borderRadius: 20, fontWeight: 700, border: `1px solid ${C.blue}30` }}>🔥 {waterStreak}d streak</span>}
+              <span style={{ fontSize: 12, color: waterCups >= WATER_CUPS ? C.green : C.muted2, fontWeight: 700, background: C.surface, padding: "3px 10px", borderRadius: 8, border: `1px solid ${C.border}` }}>{waterML}ml / 3000ml</span>
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
             {Array.from({ length: WATER_CUPS }).map((_, i) => {
               const filled = i < waterCups;
               return (
-                <div key={i} onClick={() => setWaterCups(filled ? i : i + 1)} style={{
-                  width: 44, height: 54, borderRadius: 10, cursor: "pointer",
-                  border: `2px solid ${filled ? C.blue : C.border}`,
-                  background: filled ? "linear-gradient(180deg, #93c5fd22 0%, #3b82f655 100%)" : C.surface,
-                  display: "flex", flexDirection: "column", alignItems: "center",
-                  justifyContent: "center", transition: "all 0.15s", fontSize: 18,
-                  boxShadow: filled ? `0 0 10px ${C.blue}30` : "none",
-                }}>
+                <div key={i} onClick={() => setWaterCups(filled ? i : i + 1)} style={{ width: 44, height: 54, borderRadius: 10, cursor: "pointer", border: `2px solid ${filled ? C.blue : C.border}`, background: filled ? "linear-gradient(180deg, #93c5fd22 0%, #3b82f655 100%)" : C.surface, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transition: "all 0.15s", fontSize: 18, boxShadow: filled ? `0 0 10px ${C.blue}30` : "none" }}>
                   <span>{filled ? "💧" : "○"}</span>
                   <span style={{ fontSize: 8, color: C.muted, marginTop: 2 }}>{(i + 1) * ML_PER_CUP}ml</span>
                 </div>
               );
             })}
           </div>
-          {waterCups >= WATER_CUPS && (
-            <div style={{
-              textAlign: "center", fontSize: 12, color: C.green, fontWeight: 700,
-              padding: "8px", background: `${C.green}12`, borderRadius: 10,
-              border: `1px solid ${C.green}30`,
-            }}>
-              🎉 Hydration goal reached! Streak: {waterStreak + 1} day{waterStreak !== 0 ? "s" : ""}
-            </div>
-          )}
+          {waterCups >= WATER_CUPS && <div style={{ textAlign: "center", fontSize: 12, color: C.green, fontWeight: 700, padding: "8px", background: `${C.green}12`, borderRadius: 10, border: `1px solid ${C.green}30` }}>🎉 Hydration goal reached! Streak: {waterStreak + 1} day{waterStreak !== 0 ? "s" : ""}</div>}
         </Card>
 
         {/* Food Log */}
@@ -870,182 +621,78 @@ export default function App() {
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
                 <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>{label}</div>
-                <textarea
-                  value={meals[key]}
-                  onChange={e => setMeals(prev => ({ ...prev, [key]: e.target.value }))}
-                  placeholder={placeholder}
-                  style={{ ...s.input, minHeight: 48, resize: "vertical", display: "block", fontSize: 12 }}
-                />
+                <textarea value={meals[key]} onChange={e => setMeals(prev => ({ ...prev, [key]: e.target.value }))} placeholder={placeholder} style={{ ...s.input, minHeight: 48, resize: "vertical", display: "block", fontSize: 12 }} />
               </div>
             ))}
           </div>
         </Card>
 
-        {/* Writing Space */}
+        {/* Writing */}
         <Card style={{ marginBottom: 16 }} glow={C.green}>
           <SectionHead accent={C.green}>✍️ 1000 Words Writing Space</SectionHead>
-          <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>
-            📝 What are you writing today?
-          </div>
-          <input
-            value={writingTopic}
-            onChange={e => setWritingTopic(e.target.value)}
-            placeholder="e.g. Short story, journal entry, essay on habits..."
-            style={{ ...s.input, marginBottom: 12 }}
-          />
-          <button
-            onClick={() => window.open(DRIVE_LINK, "_blank")}
-            style={{
-              ...s.btn, background: C.grad1, width: "100%",
-              padding: "10px 0", fontSize: 13, borderRadius: 9, marginBottom: 12,
-            }}
-          >
-            📁 Open Writing Folder in Drive →
-          </button>
-          <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>
-            📊 Progress log for {fmt(date)}
-          </div>
-          <textarea
-            value={writingNote}
-            onChange={e => setWritingNote(e.target.value)}
-            placeholder={`Words written, ideas, blockers...\nTarget: 1000 words ✍️`}
-            style={{ ...s.input, minHeight: 60, resize: "vertical", display: "block" }}
-          />
+          <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>📝 What are you writing today?</div>
+          <input value={writingTopic} onChange={e => setWritingTopic(e.target.value)} placeholder="e.g. Short story, journal entry, essay on habits..." style={{ ...s.input, marginBottom: 12 }} />
+          <button onClick={() => window.open(DRIVE_LINK, "_blank")} style={{ ...s.btn, background: C.grad1, width: "100%", padding: "10px 0", fontSize: 13, borderRadius: 9, marginBottom: 12 }}>📁 Open Writing Folder in Drive →</button>
+          <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>📊 Progress log for {fmt(date)}</div>
+          <textarea value={writingNote} onChange={e => setWritingNote(e.target.value)} placeholder={`Words written, ideas, blockers...\nTarget: 1000 words ✍️`} style={{ ...s.input, minHeight: 60, resize: "vertical", display: "block" }} />
         </Card>
 
         {/* Reading */}
         <Card style={{ marginBottom: 16 }}>
           <SectionHead accent={C.purple}>📖 Reading ({readTarget})</SectionHead>
-          <input
-            value={reading}
-            onChange={e => setReading(e.target.value)}
-            placeholder="Pages read today e.g. pp. 45–60..."
-            style={s.input}
-          />
+          <input value={reading} onChange={e => setReading(e.target.value)} placeholder="Pages read today e.g. pp. 45–60..." style={s.input} />
         </Card>
 
         {/* Book Tracker */}
         <Card>
           <SectionHead accent={C.gold}>📚 Book Tracker — {TOTAL_BOOKS} Book Goal</SectionHead>
-          <input
-            value={bookTitle}
-            onChange={e => setBookTitle(e.target.value)}
-            placeholder="Currently reading..."
-            style={{ ...s.input, marginBottom: 8 }}
-          />
-          <textarea
-            value={bookPoints}
-            onChange={e => setBookPoints(e.target.value)}
-            placeholder="Key ideas, quotes, takeaways..."
-            style={{ ...s.input, minHeight: 64, resize: "vertical", display: "block", marginBottom: 14 }}
-          />
+          <input value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="Currently reading..." style={{ ...s.input, marginBottom: 8 }} />
+          <textarea value={bookPoints} onChange={e => setBookPoints(e.target.value)} placeholder="Key ideas, quotes, takeaways..." style={{ ...s.input, minHeight: 64, resize: "vertical", display: "block", marginBottom: 14 }} />
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.muted, marginBottom: 8 }}>
             <span>Annual progress</span>
             <span style={{ color: C.gold, fontWeight: 700 }}>{booksCompleted} of {TOTAL_BOOKS} books</span>
           </div>
-          <div
-            ref={bookBarRef}
-            style={{ position: "relative", height: 40, cursor: "pointer", userSelect: "none", marginBottom: 6 }}
+          <div ref={bookBarRef} style={{ position: "relative", height: 40, cursor: "pointer", userSelect: "none", marginBottom: 6 }}
             onMouseDown={e => { isDragging.current = true; handleBookDrag(e.clientX); }}
             onMouseMove={e => { if (isDragging.current) handleBookDrag(e.clientX); }}
             onMouseUp={() => { isDragging.current = false; }}
             onMouseLeave={() => { isDragging.current = false; }}
             onTouchStart={e => handleBookDrag(e.touches[0].clientX)}
-            onTouchMove={e => handleBookDrag(e.touches[0].clientX)}
-          >
-            <div style={{
-              position: "absolute", top: "50%", transform: "translateY(-50%)",
-              left: 0, right: 0, height: 6, background: "#0a0f16", borderRadius: 99,
-            }} />
-            <div style={{
-              position: "absolute", top: "50%", transform: "translateY(-50%)",
-              left: 0, height: 6, borderRadius: 99,
-              background: `linear-gradient(90deg, ${C.gold}, ${C.green})`,
-              width: `${(booksCompleted / TOTAL_BOOKS) * 100}%`, transition: "width 0.1s",
-            }} />
+            onTouchMove={e => handleBookDrag(e.touches[0].clientX)}>
+            <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, right: 0, height: 6, background: "#0a0f16", borderRadius: 99 }} />
+            <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, height: 6, borderRadius: 99, background: `linear-gradient(90deg, ${C.gold}, ${C.green})`, width: `${(booksCompleted / TOTAL_BOOKS) * 100}%`, transition: "width 0.1s" }} />
             {Array.from({ length: TOTAL_BOOKS + 1 }).map((_, idx) => {
-              const reached  = idx <= booksCompleted;
+              const reached = idx <= booksCompleted;
               const isActive = idx === booksCompleted;
-              return (
-                <div key={idx} style={{
-                  position: "absolute", top: "50%",
-                  left: `${(idx / TOTAL_BOOKS) * 100}%`,
-                  transform: "translate(-50%, -50%)",
-                  width: isActive ? 22 : 10, height: isActive ? 22 : 10,
-                  borderRadius: "50%",
-                  background: reached ? C.gold : "#1e2837",
-                  border: isActive ? "2.5px solid #fff" : "none",
-                  boxShadow: isActive ? `0 0 12px ${C.gold}` : "none",
-                  zIndex: 2, transition: "all 0.1s",
-                }} />
-              );
+              return <div key={idx} style={{ position: "absolute", top: "50%", left: `${(idx / TOTAL_BOOKS) * 100}%`, transform: "translate(-50%, -50%)", width: isActive ? 22 : 10, height: isActive ? 22 : 10, borderRadius: "50%", background: reached ? C.gold : "#1e2837", border: isActive ? "2.5px solid #fff" : "none", boxShadow: isActive ? `0 0 12px ${C.gold}` : "none", zIndex: 2, transition: "all 0.1s" }} />;
             })}
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: C.muted }}>
-            {[0, 3, 6, 9, 12].map(n => (
-              <span key={n} style={{ color: n <= booksCompleted ? C.gold : C.muted }}>
-                {n === 12 ? "🎉 12" : n}
-              </span>
-            ))}
+            {[0, 3, 6, 9, 12].map(n => <span key={n} style={{ color: n <= booksCompleted ? C.gold : C.muted }}>{n === 12 ? "🎉 12" : n}</span>)}
           </div>
         </Card>
       </div>
 
-      {/* ══════════ RIGHT PANEL ══════════ */}
+      {/* ══ RIGHT PANEL ══ */}
       <div style={{ flex: "0 0 310px", padding: "20px 18px", overflowY: "auto" }}>
 
         {/* Office Tasks */}
         <Card style={{ marginBottom: 16 }} glow={C.blue}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <SectionHead accent={C.blue}>🏢 Office Tasks</SectionHead>
-            {officeTotal > 0 && (
-              <span style={{
-                fontSize: 10, color: C.blue, fontWeight: 700,
-                background: `${C.blue}20`, padding: "2px 8px",
-                borderRadius: 6, border: `1px solid ${C.blue}30`,
-              }}>{officeDone}/{officeTotal}</span>
-            )}
+            {officeTotal > 0 && <span style={{ fontSize: 10, color: C.blue, fontWeight: 700, background: `${C.blue}20`, padding: "2px 8px", borderRadius: 6, border: `1px solid ${C.blue}30` }}>{officeDone}/{officeTotal}</span>}
           </div>
-          <div style={{
-            fontSize: 11, color: C.blue, fontWeight: 600,
-            marginBottom: 10, padding: "8px 12px",
-            background: `${C.blue}12`, borderRadius: 10,
-            border: `1px solid ${C.blue}25`,
-          }}>
-            💼 Office tasks to complete today
-          </div>
+          <div style={{ fontSize: 11, color: C.blue, fontWeight: 600, marginBottom: 10, padding: "8px 12px", background: `${C.blue}12`, borderRadius: 10, border: `1px solid ${C.blue}25` }}>💼 Office tasks to complete today</div>
           {officeTasks.map(task => (
             <div key={task.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
-              <div onClick={() => updateOfficeTask(task.id, "done", !task.done)} style={{
-                width: 18, height: 18, borderRadius: 6, flexShrink: 0, cursor: "pointer",
-                border: `1.5px solid ${task.done ? C.blue : C.border}`,
-                background: task.done ? C.blue : "transparent",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                transition: "all 0.15s",
-              }}>
+              <div onClick={() => updateOfficeTask(task.id, "done", !task.done)} style={{ width: 18, height: 18, borderRadius: 6, flexShrink: 0, cursor: "pointer", border: `1.5px solid ${task.done ? C.blue : C.border}`, background: task.done ? C.blue : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
                 {task.done && <span style={{ color: "#fff", fontSize: 10, fontWeight: 800 }}>✓</span>}
               </div>
-              <input
-                value={task.text}
-                onChange={e => updateOfficeTask(task.id, "text", e.target.value)}
-                placeholder="Add office task..."
-                style={{
-                  ...s.input, flex: 1, padding: "6px 10px",
-                  textDecoration: task.done ? "line-through" : "none",
-                  color: task.done ? C.muted : C.text, fontSize: 12,
-                }}
-              />
-              <button onClick={() => removeOfficeTask(task.id)} style={{
-                background: "transparent", border: "none", color: C.muted,
-                cursor: "pointer", fontSize: 16, padding: "0 2px", lineHeight: 1,
-              }}>×</button>
+              <input value={task.text} onChange={e => updateOfficeTask(task.id, "text", e.target.value)} placeholder="Add office task..." style={{ ...s.input, flex: 1, padding: "6px 10px", textDecoration: task.done ? "line-through" : "none", color: task.done ? C.muted : C.text, fontSize: 12 }} />
+              <button onClick={() => removeOfficeTask(task.id)} style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 16, padding: "0 2px", lineHeight: 1 }}>×</button>
             </div>
           ))}
-          <button onClick={addOfficeTask} style={{
-            ...s.btn, background: "transparent",
-            border: `1px dashed ${C.border2}`,
-            color: C.muted2, width: "100%", marginTop: 4, fontSize: 12, borderRadius: 9,
-          }}>+ Add task</button>
+          <button onClick={addOfficeTask} style={{ ...s.btn, background: "transparent", border: `1px dashed ${C.border2}`, color: C.muted2, width: "100%", marginTop: 4, fontSize: 12, borderRadius: 9 }}>+ Add task</button>
         </Card>
 
         {/* Journal */}
@@ -1054,11 +701,7 @@ export default function App() {
           {["What went well today?", "What lacked / felt off?", "What will you improve tomorrow?"].map((q, i) => (
             <div key={i} style={{ marginBottom: 10 }}>
               <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>{q}</div>
-              <textarea
-                value={journal[i]}
-                onChange={e => { const c = [...journal]; c[i] = e.target.value; setJournal(c); }}
-                style={{ ...s.input, minHeight: 54, resize: "vertical", display: "block" }}
-              />
+              <textarea value={journal[i]} onChange={e => { const c = [...journal]; c[i] = e.target.value; setJournal(c); }} style={{ ...s.input, minHeight: 54, resize: "vertical", display: "block" }} />
             </div>
           ))}
         </Card>
@@ -1066,70 +709,31 @@ export default function App() {
         {/* Notes */}
         <Card style={{ marginBottom: 16 }}>
           <SectionHead accent={C.muted2}>🗒️ Personal Notes</SectionHead>
-          <textarea
-            value={notes}
-            onChange={e => setNotes(e.target.value)}
-            placeholder="Anything on your mind..."
-            style={{ ...s.input, minHeight: 90, resize: "vertical", display: "block" }}
-          />
+          <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Anything on your mind..." style={{ ...s.input, minHeight: 90, resize: "vertical", display: "block" }} />
         </Card>
 
-        {/* Day summary */}
-        <Card style={{
-          background: `linear-gradient(135deg, ${C.card} 0%, #0d1a1a 100%)`,
-          border: `1px solid ${C.green}25`,
-        }}>
+        {/* Day at a Glance */}
+        <Card style={{ background: `linear-gradient(135deg, ${C.card} 0%, #0d1a1a 100%)`, border: `1px solid ${C.green}25` }}>
           <SectionHead accent={C.green}>📊 Day at a Glance</SectionHead>
           <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
             {[
-              { label: "Tasks",   value: `${doneCount}/${TASKS.length}`, icon: "✅", accent: C.green },
+              { label: "Tasks",   value: `${doneCount}/${TASKS.length}`, icon: "✅", accent: C.green  },
               { label: "Office",  value: officeTotal > 0 ? `${officeDone}/${officeTotal}` : "—", icon: "🏢", accent: C.blue },
-              { label: "Water",   value: `${waterML}ml`, icon: "💧", accent: C.blue },
-              { label: "Books",   value: `${booksCompleted}/${TOTAL_BOOKS}`, icon: "📚", accent: C.gold },
+              { label: "Water",   value: `${waterML}ml`, icon: "💧", accent: C.blue   },
+              { label: "Books",   value: `${booksCompleted}/${TOTAL_BOOKS}`, icon: "📚", accent: C.gold  },
               { label: "Reading", value: reading || "—", icon: "📖", accent: C.purple },
               { label: "Writing", value: writingTopic ? writingTopic : writingNote ? "✓ logged" : "—", icon: "✍️", accent: C.green },
             ].map(({ label, value, icon, accent }) => (
-              <div key={label} style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "7px 11px", background: "#080d14", borderRadius: 9,
-                border: `1px solid ${C.border}`,
-              }}>
+              <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 11px", background: "#080d14", borderRadius: 9, border: `1px solid ${C.border}` }}>
                 <span style={{ fontSize: 12, color: C.muted2 }}>{icon} {label}</span>
-                <span style={{
-                  fontSize: 12, fontWeight: 700, color: accent,
-                  maxWidth: 130, textAlign: "right",
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>{value}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: accent, maxWidth: 130, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value}</span>
               </div>
             ))}
-
-            {period && (
-              <div style={{
-                textAlign: "center", padding: "8px", background: "#2d1020",
-                borderRadius: 9, border: `1px solid ${C.period}30`,
-                fontSize: 12, color: C.period, fontWeight: 600,
-              }}>
-                🌸 Period day — prayers paused, keep going 💪
-              </div>
-            )}
-            {pct === 100 && !period && (
-              <div style={{
-                textAlign: "center", padding: "10px", borderRadius: 9,
-                background: `linear-gradient(135deg, ${C.green}18, ${C.teal}10)`,
-                border: `1px solid ${C.green}40`, fontSize: 12, color: C.green, fontWeight: 700,
-              }}>
-                🌟 Perfect day! Alhamdulillah!
-              </div>
-            )}
+            {period && <div style={{ textAlign: "center", padding: "8px", background: "#2d1020", borderRadius: 9, border: `1px solid ${C.period}30`, fontSize: 12, color: C.period, fontWeight: 600 }}>🌸 Period day — prayers paused, keep going 💪</div>}
+            {pct === 100 && !period && <div style={{ textAlign: "center", padding: "10px", borderRadius: 9, background: `linear-gradient(135deg, ${C.green}18, ${C.teal}10)`, border: `1px solid ${C.green}40`, fontSize: 12, color: C.green, fontWeight: 700 }}>🌟 Perfect day! Alhamdulillah!</div>}
           </div>
-
           {!isToday && (
-            <div style={{
-              marginTop: 12, padding: "10px 12px", borderRadius: 10,
-              background: isFuture ? `${C.blue}10` : `${C.gold}10`,
-              border: `1px solid ${isFuture ? C.blue : C.gold}25`,
-              fontSize: 11, color: isFuture ? C.blue : C.gold, lineHeight: 1.5,
-            }}>
+            <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 10, background: isFuture ? `${C.blue}10` : `${C.gold}10`, border: `1px solid ${isFuture ? C.blue : C.gold}25`, fontSize: 11, color: isFuture ? C.blue : C.gold, lineHeight: 1.5 }}>
               {isFuture ? "🗓️" : "📅"} Viewing <strong>{fmt(date)}</strong>.<br />
               {isFuture ? "Plan ahead — data saves automatically." : "All data shown is from that day."}
             </div>
