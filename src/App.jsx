@@ -6,6 +6,8 @@ const TOTAL_BOOKS = 12;
 const WATER_CUPS = 10;
 const ML_PER_CUP = 300;
 
+const DRIVE_LINK = "https://drive.google.com/drive/folders/1koRdqfXHhZBloWXyYekM_DFFQg6oTDbF?usp=drive_link";
+
 const QURAN_VERSES = [
   { text: "Say: He is Allah, the One and Only.", ref: "112:1" },
   { text: "Allah is with the patient.", ref: "2:153" },
@@ -107,16 +109,22 @@ const QURAN_VERSES = [
   { text: "O My servants who have transgressed against themselves — do not despair of the mercy of Allah.", ref: "39:53" },
 ];
 
+// Schedule with prayer times included
 const SCHEDULE = [
-  { time: "9:30–11am",       label: "Focus Time",             icon: "🎧", type: "focus" },
-  { time: "11–11:50am",      label: "Eng, Ops & CS Review",   icon: "🔵", type: "meeting" },
-  { time: "11:10am",         label: "Short Break",             icon: "☕", type: "break" },
-  { time: "11:30am–12:30pm", label: "Admin Block",             icon: "📋", type: "admin" },
-  { time: "12:45–1:45pm",    label: "Lunch Break",             icon: "🍽️", type: "break" },
-  { time: "2–5pm",           label: "Focus Time",              icon: "🎧", type: "focus" },
-  { time: "4–4:50pm",        label: "Growth Team Sync",        icon: "🔵", type: "meeting" },
-  { time: "5:10pm",          label: "Break",                   icon: "☕", type: "break" },
-  { time: "6pm",             label: "Small Task",              icon: "⭕", type: "admin" },
+  { time: "5:15am",           label: "Fajr",                   icon: "🌙", type: "prayer" },
+  { time: "9:30–11am",        label: "Focus Time",             icon: "🎧", type: "focus" },
+  { time: "11–11:50am",       label: "Eng, Ops & CS Review",   icon: "🔵", type: "meeting" },
+  { time: "11:10am",          label: "Short Break",             icon: "☕", type: "break" },
+  { time: "11:30am–12:30pm",  label: "Admin Block",             icon: "📋", type: "admin" },
+  { time: "12:45–1:45pm",     label: "Lunch Break",             icon: "🍽️", type: "break" },
+  { time: "1:30pm",           label: "Dhuhr",                  icon: "🕌", type: "prayer" },
+  { time: "2–5pm",            label: "Focus Time",              icon: "🎧", type: "focus" },
+  { time: "3:45pm",           label: "Asr",                    icon: "🕌", type: "prayer" },
+  { time: "4–4:50pm",         label: "Growth Team Sync",        icon: "🔵", type: "meeting" },
+  { time: "5:10pm",           label: "Break",                   icon: "☕", type: "break" },
+  { time: "6pm",              label: "Small Task",              icon: "⭕", type: "admin" },
+  { time: "6:30pm",           label: "Maghrib",                icon: "🌅", type: "prayer" },
+  { time: "7:30pm",           label: "Isha",                   icon: "🌙", type: "prayer" },
 ];
 
 const TASKS = [
@@ -146,6 +154,7 @@ const SCH_STYLE = {
   meeting: "#1a2d4a",
   break:   "#1a1f26",
   admin:   "#1e2d20",
+  prayer:  "#2d1f47",
 };
 
 // ─── HELPERS ─────────────────────────────────────────────────
@@ -169,6 +178,29 @@ function getGreeting() {
   if (h < 17) return "السلام عليكم 🌤️";
   if (h < 20) return "السلام عليكم 🌅";
   return "السلام عليكم 🌙";
+}
+
+// Returns a guaranteed blank slate for a new day
+function freshState() {
+  return {
+    done: {},
+    notes: "",
+    journal: ["", "", ""],
+    waterCups: 0,
+    period: false,
+    reading: "",
+    bookTitle: "",
+    bookPoints: "",
+    booksCompleted: 0,
+    meals: { breakfast: "", lunch: "", dinner: "", snacks: "" },
+    writingNote: "",
+    writingTopic: "",
+    officeTasks: [
+      { id: 1, text: "", done: false },
+      { id: 2, text: "", done: false },
+      { id: 3, text: "", done: false },
+    ],
+  };
 }
 
 // ─── THEME ───────────────────────────────────────────────────
@@ -242,7 +274,7 @@ function SectionHead({ children, accent }) {
   );
 }
 
-function Stat({ label, value, accent, sub }) {
+function Stat({ label, value, accent }) {
   return (
     <div style={{
       background: "#080d14", padding: "12px 8px", borderRadius: 12,
@@ -255,7 +287,6 @@ function Stat({ label, value, accent, sub }) {
       }} />
       <div style={{ fontSize: 24, fontWeight: 800, color: accent || C.text, lineHeight: 1, fontFamily: "'Outfit', sans-serif" }}>{value}</div>
       <div style={{ fontSize: 9, color: C.muted, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
-      {sub && <div style={{ fontSize: 10, color: accent, marginTop: 2 }}>{sub}</div>}
     </div>
   );
 }
@@ -279,8 +310,8 @@ export default function App() {
   const [bookPoints,     setBookPoints]    = useState("");
   const [booksCompleted, setBooksCompleted]= useState(0);
   const [meals,          setMeals]         = useState({ breakfast: "", lunch: "", dinner: "", snacks: "" });
-  const [driveLink,      setDriveLink]     = useState("");
   const [writingNote,    setWritingNote]   = useState("");
+  const [writingTopic,   setWritingTopic]  = useState("");
   const [officeTasks,    setOfficeTasks]   = useState([
     { id: 1, text: "", done: false },
     { id: 2, text: "", done: false },
@@ -296,17 +327,15 @@ export default function App() {
   const bookBarRef = useRef(null);
   const isDragging = useRef(false);
 
-  const dayKey    = toKey(date);
-  const isToday   = dayKey === toKey(today);
+  const dayKey  = toKey(date);
+  const isToday = dayKey === toKey(today);
 
-  // ── Future date limit: Dec 31 2026 ──
-  const maxDate = new Date(2026, 11, 31); // Dec 31 2026
+  const maxDate = new Date(2026, 11, 31);
   const isAtMax = toKey(date) >= toKey(maxDate);
 
   const isWeekend = [0, 6].includes(date.getDay());
   const readTarget = isWeekend ? "20–30 pages" : "10–15 pages";
 
-  // Day label for nav
   const isFuture = date > today;
   const dayLabel = isToday ? "Today" : isFuture ? `📅 ${fmtShort(date)}` : `📅 Past · ${fmtShort(date)}`;
 
@@ -346,14 +375,13 @@ export default function App() {
             position: "absolute", bottom: -40, left: -40, width: 120, height: 120,
             borderRadius: "50%", background: `${C.purple}10`, filter: "blur(30px)",
           }} />
-
           <div style={{ position: "relative" }}>
             <div style={{ fontSize: 42, marginBottom: 8, textAlign: "center" }}>🌙</div>
             <h2 style={{
               margin: "0 0 4px", fontSize: 26, fontWeight: 800,
               textAlign: "center", color: C.text,
               background: C.grad1, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>Aashika's Daily Sanctuary</h2>
+            }}>Welcome to Daily Tracker</h2>
             <p style={{
               color: C.muted2, fontSize: 13, marginBottom: 6,
               textAlign: "center", lineHeight: 1.6,
@@ -362,7 +390,6 @@ export default function App() {
               color: C.muted, fontSize: 12, marginBottom: 24,
               textAlign: "center", fontStyle: "italic",
             }}>Your personal command centre — powered by faith & purpose</p>
-
             <input
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
@@ -390,7 +417,7 @@ export default function App() {
                 }
               }}
             >
-              Enter your sanctuary →
+              Start tracking →
             </button>
           </div>
         </div>
@@ -398,9 +425,26 @@ export default function App() {
     );
   }
 
-  // ── LOAD ──
+  // ── LOAD — reset to fresh first, then hydrate from DB ──
   useEffect(() => {
     setLoaded(false);
+
+    // Immediately wipe all state to blank so navigating days never bleeds over
+    const blank = freshState();
+    setDone(blank.done);
+    setNotes(blank.notes);
+    setJournal(blank.journal);
+    setWaterCups(blank.waterCups);
+    setPeriod(blank.period);
+    setReading(blank.reading);
+    setBookTitle(blank.bookTitle);
+    setBookPoints(blank.bookPoints);
+    setBooksCompleted(blank.booksCompleted);
+    setMeals(blank.meals);
+    setWritingNote(blank.writingNote);
+    setWritingTopic(blank.writingTopic);
+    setOfficeTasks(blank.officeTasks);
+
     (async () => {
       const { data } = await supabase.from("tracker").select("data")
         .eq("user_name", user).eq("date", dayKey).maybeSingle();
@@ -417,27 +461,17 @@ export default function App() {
         setBookPoints(d.bookPoints || "");
         setBooksCompleted(d.booksCompleted ?? 0);
         setMeals(d.meals || { breakfast: "", lunch: "", dinner: "", snacks: "" });
-        setDriveLink(d.driveLink || "");
         setWritingNote(d.writingNote || "");
+        setWritingTopic(d.writingTopic || "");
         setOfficeTasks(d.officeTasks || [
           { id: 1, text: "", done: false },
           { id: 2, text: "", done: false },
           { id: 3, text: "", done: false },
         ]);
-      } else {
-        setDone({}); setNotes(""); setJournal(["", "", ""]);
-        setWaterCups(0); setPeriod(false); setReading("");
-        setBookTitle(""); setBookPoints(""); setBooksCompleted(0);
-        setMeals({ breakfast: "", lunch: "", dinner: "", snacks: "" });
-        setDriveLink(""); setWritingNote("");
-        setOfficeTasks([
-          { id: 1, text: "", done: false },
-          { id: 2, text: "", done: false },
-          { id: 3, text: "", done: false },
-        ]);
       }
+      // No data for that day = stays blank (fresh start) ✓
 
-      // Water streak
+      // Water streak calc
       const keys = Array.from({ length: 30 }, (_, i) => {
         const d2 = new Date(today); d2.setDate(today.getDate() - i - 1);
         return toKey(d2);
@@ -469,23 +503,26 @@ export default function App() {
           data: {
             done, notes, journal, waterCups, period, reading,
             bookTitle, bookPoints, booksCompleted, meals,
-            driveLink, writingNote, officeTasks,
+            writingNote, writingTopic, officeTasks,
           }
         },
         { onConflict: "user_name,date" }
       );
       setSaving(false);
     })();
-  }, [done, notes, journal, waterCups, period, reading, bookTitle, bookPoints, booksCompleted, meals, driveLink, writingNote, officeTasks, loaded, dayKey]);
+  }, [done, notes, journal, waterCups, period, reading, bookTitle, bookPoints, booksCompleted, meals, writingNote, writingTopic, officeTasks, loaded, dayKey]);
 
   // ── HELPERS ──
-  const toggle = (i) => { if (period) return; setDone(p => ({ ...p, [i]: !p[i] })); };
+  // Period mode only blocks prayer tasks — habits & work unaffected
+  const toggle = (i) => {
+    const task = TASKS[i];
+    if (period && task.tag === "prayer") return;
+    setDone(p => ({ ...p, [i]: !p[i] }));
+  };
 
-  // ── FIX: changeDay now works for ALL dates, past AND future, up to Dec 31 2026 ──
   const changeDay = (dir) => {
     const d = new Date(date);
     d.setDate(d.getDate() + dir);
-    // Don't go beyond Dec 31 2026
     if (d > maxDate) return;
     setDate(d);
   };
@@ -501,10 +538,9 @@ export default function App() {
   const updateOfficeTask = (id, field, val) => setOfficeTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: val } : t));
   const removeOfficeTask = (id) => setOfficeTasks(prev => prev.filter(t => t.id !== id));
 
-  const officeDone = officeTasks.filter(t => t.done && t.text.trim()).length;
+  const officeDone  = officeTasks.filter(t => t.done && t.text.trim()).length;
   const officeTotal = officeTasks.filter(t => t.text.trim()).length;
 
-  // Book bar drag
   const handleBookDrag = (clientX) => {
     if (!bookBarRef.current) return;
     const rect = bookBarRef.current.getBoundingClientRect();
@@ -520,6 +556,7 @@ export default function App() {
       display: "flex", background: C.bg, color: C.text, minHeight: "100vh",
       fontFamily: "'Outfit', -apple-system, sans-serif",
     }}>
+
       {/* ══════════ LEFT PANEL ══════════ */}
       <div style={{
         flex: "0 0 370px", borderRight: `1px solid ${C.border}`,
@@ -533,25 +570,20 @@ export default function App() {
           borderBottom: `1px solid ${C.border}`,
           marginBottom: 4,
         }}>
-          {/* Greeting + name */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
             <div>
-              <div style={{
-                fontSize: 12, fontWeight: 700, color: C.green,
-                letterSpacing: "0.04em", marginBottom: 2,
-              }}>{getGreeting()}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.green, letterSpacing: "0.04em", marginBottom: 2 }}>{getGreeting()}</div>
               <h2 style={{
                 margin: "0 0 0", fontSize: 20, fontWeight: 800, lineHeight: 1.2,
                 background: C.grad1, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               }}>
-                {user === "Aashika" || user === "aashika" ? "Aashika ✨" : user}
+                {user} ✨
               </h2>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{dayLabel}</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{
-                fontSize: 11, fontWeight: 600,
-                color: saving ? C.gold : C.green,
+                fontSize: 11, fontWeight: 600, color: saving ? C.gold : C.green,
                 display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end",
               }}>
                 <div style={{
@@ -569,65 +601,39 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── IMPROVED DATE NAV ── */}
+          {/* Date Nav */}
           <div style={{
             display: "flex", gap: 6, alignItems: "center",
             background: C.surface, borderRadius: 12, padding: "8px 10px",
             border: `1px solid ${C.border}`, marginBottom: 14,
           }}>
-            {/* Prev */}
-            <button
-              style={{
-                ...s.nav,
-                background: "transparent", border: `1px solid ${C.border}`,
-                borderRadius: 8, padding: "6px 12px", fontSize: 12,
-                color: C.muted2,
-              }}
-              onClick={() => changeDay(-1)}
-            >
-              ← Prev
-            </button>
+            <button style={{
+              ...s.nav, background: "transparent", border: `1px solid ${C.border}`,
+              borderRadius: 8, padding: "6px 12px", fontSize: 12, color: C.muted2,
+            }} onClick={() => changeDay(-1)}>← Prev</button>
 
-            {/* Center: date display + today button */}
             <div style={{ flex: 1, textAlign: "center" }}>
               {!isToday ? (
-                <button
-                  style={{
-                    background: `${C.green}18`, border: `1px solid ${C.green}40`,
-                    borderRadius: 8, padding: "5px 14px", color: C.green,
-                    cursor: "pointer", fontSize: 11, fontWeight: 700,
-                    letterSpacing: "0.03em",
-                  }}
-                  onClick={() => setDate(new Date())}
-                >
-                  ↩ Jump to Today
-                </button>
+                <button style={{
+                  background: `${C.green}18`, border: `1px solid ${C.green}40`,
+                  borderRadius: 8, padding: "5px 14px", color: C.green,
+                  cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.03em",
+                }} onClick={() => setDate(new Date())}>↩ Jump to Today</button>
               ) : (
-                <span style={{ fontSize: 11, color: C.green, fontWeight: 700 }}>
-                  ✦ Today
-                </span>
+                <span style={{ fontSize: 11, color: C.green, fontWeight: 700 }}>✦ Today</span>
               )}
             </div>
 
-            {/* Next — enabled up to Dec 31 2026 */}
-            <button
-              style={{
-                ...s.nav,
-                background: "transparent",
-                border: `1px solid ${isAtMax ? C.border : C.border2}`,
-                borderRadius: 8, padding: "6px 12px", fontSize: 12,
-                color: isAtMax ? C.muted : C.muted2,
-                cursor: isAtMax ? "not-allowed" : "pointer",
-                opacity: isAtMax ? 0.4 : 1,
-              }}
-              onClick={() => { if (!isAtMax) changeDay(1); }}
-              disabled={isAtMax}
-            >
-              Next →
-            </button>
+            <button style={{
+              ...s.nav, background: "transparent",
+              border: `1px solid ${isAtMax ? C.border : C.border2}`,
+              borderRadius: 8, padding: "6px 12px", fontSize: 12,
+              color: isAtMax ? C.muted : C.muted2,
+              cursor: isAtMax ? "not-allowed" : "pointer",
+              opacity: isAtMax ? 0.4 : 1,
+            }} onClick={() => { if (!isAtMax) changeDay(1); }} disabled={isAtMax}>Next →</button>
           </div>
 
-          {/* Future day banner */}
           {isFuture && !isToday && (
             <div style={{
               marginBottom: 10, padding: "8px 12px", borderRadius: 10,
@@ -641,32 +647,25 @@ export default function App() {
           {/* Quran verse */}
           <div style={{
             background: `linear-gradient(135deg, ${C.purple}12, ${C.green}08)`,
-            border: `1px solid ${C.purple}30`, borderRadius: 12,
-            padding: "12px 14px",
-            transition: "opacity 0.4s",
-            opacity: verseAnim ? 1 : 0,
+            border: `1px solid ${C.purple}30`, borderRadius: 12, padding: "12px 14px",
+            transition: "opacity 0.4s", opacity: verseAnim ? 1 : 0,
           }}>
             <div style={{ fontSize: 9, color: C.purple, fontWeight: 700, letterSpacing: "0.12em", marginBottom: 5, textTransform: "uppercase" }}>
               ✦ Quranic Reminder
             </div>
-            <div style={{ fontSize: 12.5, color: "#d4bbff", lineHeight: 1.6, fontStyle: "italic" }}>
-              "{verse.text}"
-            </div>
-            <div style={{ fontSize: 10, color: C.muted2, marginTop: 5, textAlign: "right", fontWeight: 600 }}>
-              — Quran {verse.ref}
-            </div>
+            <div style={{ fontSize: 12.5, color: "#d4bbff", lineHeight: 1.6, fontStyle: "italic" }}>"{verse.text}"</div>
+            <div style={{ fontSize: 10, color: C.muted2, marginTop: 5, textAlign: "right", fontWeight: 600 }}>— Quran {verse.ref}</div>
           </div>
         </div>
 
         {/* Stats */}
         <div style={{ padding: "14px 20px 10px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 10 }}>
-            <Stat label="Done"  value={doneCount}   accent={C.green} />
+            <Stat label="Done"  value={doneCount} accent={C.green} />
             <Stat label="Left"  value={TASKS.length - doneCount} accent={C.muted2} />
-            <Stat label="Score" value={`${pct}%`}   accent={pct === 100 ? C.green : C.blue} />
+            <Stat label="Score" value={`${pct}%`} accent={pct === 100 ? C.green : C.blue} />
             <Stat label="Water" value={`${waterCups}/${WATER_CUPS}`} accent={C.blue} />
           </div>
-          {/* Progress bar */}
           <div style={{ height: 4, background: "#0a0f16", borderRadius: 99, overflow: "hidden" }}>
             <div style={{
               height: 4, borderRadius: 99,
@@ -676,7 +675,7 @@ export default function App() {
           </div>
           {pct === 100 && (
             <div style={{ textAlign: "center", fontSize: 11, color: C.green, marginTop: 6, fontWeight: 700 }}>
-              🎉 MashAllah! Perfect day, Aashika!
+              🎉 MashAllah! Perfect day!
             </div>
           )}
         </div>
@@ -703,7 +702,9 @@ export default function App() {
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: period ? C.period : C.text }}>🌸 Period Mode</div>
-              <div style={{ fontSize: 11, color: C.muted }}>{period ? "Rest day — all tasks paused 💗" : "Toggle on period days"}</div>
+              <div style={{ fontSize: 11, color: C.muted }}>
+                {period ? "Prayers paused — habits & work continue 💪" : "Toggle on period days (pauses prayers only)"}
+              </div>
             </div>
           </div>
         </div>
@@ -714,6 +715,8 @@ export default function App() {
             const list = grouped[tag];
             const ts = TAG_STYLE[tag];
             const tagDone = list.filter(t => done[t.i]).length;
+            // Only prayer section is dimmed during period
+            const isPeriodBlocked = period && tag === "prayer";
             return (
               <div key={tag} style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -723,15 +726,25 @@ export default function App() {
                     background: ts.bg, padding: "2px 8px", borderRadius: 6,
                   }}>{tagDone}/{list.length}</span>
                 </div>
+                {isPeriodBlocked && (
+                  <div style={{
+                    padding: "8px 12px", borderRadius: 10, marginBottom: 8,
+                    background: "#2d1020", border: `1px solid ${C.period}40`,
+                    fontSize: 11, color: C.period, textAlign: "center",
+                  }}>
+                    🌸 Prayers paused on period days — it's okay 💗
+                  </div>
+                )}
                 {list.map(t => {
                   const isDone = !!done[t.i];
                   return (
                     <div key={t.i} onClick={() => toggle(t.i)} style={{
                       display: "flex", alignItems: "center", gap: 10, padding: "9px 12px",
-                      borderRadius: 10, marginBottom: 5, cursor: period ? "not-allowed" : "pointer",
-                      background: isDone ? `${ts.bg}` : C.card,
+                      borderRadius: 10, marginBottom: 5,
+                      cursor: isPeriodBlocked ? "not-allowed" : "pointer",
+                      background: isDone ? ts.bg : C.card,
                       border: `1px solid ${isDone ? ts.accent + "40" : C.border}`,
-                      opacity: period ? 0.3 : 1,
+                      opacity: isPeriodBlocked ? 0.3 : 1,
                       transition: "all 0.15s",
                     }}>
                       <div style={{
@@ -763,17 +776,23 @@ export default function App() {
             <div key={i} style={{
               display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
               borderRadius: 9, marginBottom: 4,
-              background: SCH_STYLE[item.type],
-              border: `1px solid ${C.border}`,
+              background: SCH_STYLE[item.type] || SCH_STYLE.admin,
+              border: `1px solid ${item.type === "prayer" ? C.purple + "40" : C.border}`,
             }}>
               <span style={{ fontSize: 14 }}>{item.icon}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600 }}>{item.label}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: item.type === "prayer" ? "#c084fc" : C.text }}>
+                  {item.label}
+                </div>
                 <div style={{ fontSize: 10, color: C.muted }}>{item.time}</div>
               </div>
               <div style={{
                 width: 6, height: 6, borderRadius: "50%",
-                background: item.type === "focus" ? C.blue : item.type === "meeting" ? C.purple : item.type === "break" ? C.muted : C.green,
+                background: item.type === "prayer" ? C.purple
+                  : item.type === "focus" ? C.blue
+                  : item.type === "meeting" ? C.purple
+                  : item.type === "break" ? C.muted
+                  : C.green,
               }} />
             </div>
           ))}
@@ -793,49 +812,40 @@ export default function App() {
                   fontSize: 11, background: `${C.blue}20`, color: C.blue,
                   padding: "3px 10px", borderRadius: 20, fontWeight: 700,
                   border: `1px solid ${C.blue}30`,
-                }}>
-                  🔥 {waterStreak}d streak
-                </span>
+                }}>🔥 {waterStreak}d streak</span>
               )}
               <span style={{
                 fontSize: 12, color: waterCups >= WATER_CUPS ? C.green : C.muted2,
                 fontWeight: 700, background: C.surface, padding: "3px 10px",
                 borderRadius: 8, border: `1px solid ${C.border}`,
-              }}>
-                {waterML}ml / 3000ml
-              </span>
+              }}>{waterML}ml / 3000ml</span>
             </div>
           </div>
-
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
             {Array.from({ length: WATER_CUPS }).map((_, i) => {
               const filled = i < waterCups;
               return (
-                <div key={i} onClick={() => setWaterCups(filled ? i : i + 1)}
-                  style={{
-                    width: 44, height: 54, borderRadius: 10, cursor: "pointer",
-                    border: `2px solid ${filled ? C.blue : C.border}`,
-                    background: filled
-                      ? "linear-gradient(180deg, #93c5fd22 0%, #3b82f655 100%)"
-                      : C.surface,
-                    display: "flex", flexDirection: "column", alignItems: "center",
-                    justifyContent: "center", transition: "all 0.15s", fontSize: 18,
-                    boxShadow: filled ? `0 0 10px ${C.blue}30` : "none",
-                  }}>
+                <div key={i} onClick={() => setWaterCups(filled ? i : i + 1)} style={{
+                  width: 44, height: 54, borderRadius: 10, cursor: "pointer",
+                  border: `2px solid ${filled ? C.blue : C.border}`,
+                  background: filled ? "linear-gradient(180deg, #93c5fd22 0%, #3b82f655 100%)" : C.surface,
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  justifyContent: "center", transition: "all 0.15s", fontSize: 18,
+                  boxShadow: filled ? `0 0 10px ${C.blue}30` : "none",
+                }}>
                   <span>{filled ? "💧" : "○"}</span>
                   <span style={{ fontSize: 8, color: C.muted, marginTop: 2 }}>{(i + 1) * ML_PER_CUP}ml</span>
                 </div>
               );
             })}
           </div>
-
           {waterCups >= WATER_CUPS && (
             <div style={{
               textAlign: "center", fontSize: 12, color: C.green, fontWeight: 700,
               padding: "8px", background: `${C.green}12`, borderRadius: 10,
               border: `1px solid ${C.green}30`,
             }}>
-              🎉 Hydration goal reached! MashAllah Aashika! Streak: {waterStreak + 1} day{waterStreak !== 0 ? "s" : ""}
+              🎉 Hydration goal reached! Streak: {waterStreak + 1} day{waterStreak !== 0 ? "s" : ""}
             </div>
           )}
         </Card>
@@ -866,28 +876,29 @@ export default function App() {
         {/* Writing Space */}
         <Card style={{ marginBottom: 16 }} glow={C.green}>
           <SectionHead accent={C.green}>✍️ 1000 Words Writing Space</SectionHead>
-          <div style={{ fontSize: 11, color: C.muted2, marginBottom: 6, fontWeight: 600 }}>
-            📁 Google Drive Folder Link
-          </div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <input
-              value={driveLink}
-              onChange={e => setDriveLink(e.target.value)}
-              placeholder="Paste your Drive folder URL here..."
-              style={{ ...s.input, flex: 1 }}
-            />
-            <button
-              onClick={() => { if (driveLink.trim()) window.open(driveLink, "_blank"); }}
-              style={{
-                ...s.btn, background: C.grad1, whiteSpace: "nowrap",
-                padding: "8px 14px", fontSize: 12, borderRadius: 9,
-              }}
-            >
-              📝 Write Day {fmtShort(date)}
-            </button>
-          </div>
+
           <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>
-            📊 Writing log for {fmt(date)}
+            📝 What are you writing today?
+          </div>
+          <input
+            value={writingTopic}
+            onChange={e => setWritingTopic(e.target.value)}
+            placeholder="e.g. Short story, journal entry, essay on habits..."
+            style={{ ...s.input, marginBottom: 12 }}
+          />
+
+          <button
+            onClick={() => window.open(DRIVE_LINK, "_blank")}
+            style={{
+              ...s.btn, background: C.grad1, width: "100%",
+              padding: "10px 0", fontSize: 13, borderRadius: 9, marginBottom: 12,
+            }}
+          >
+            📁 Open Writing Folder in Drive →
+          </button>
+
+          <div style={{ fontSize: 11, color: C.muted2, marginBottom: 4, fontWeight: 600 }}>
+            📊 Progress log for {fmt(date)}
           </div>
           <textarea
             value={writingNote}
@@ -923,12 +934,10 @@ export default function App() {
             placeholder="Key ideas, quotes, takeaways..."
             style={{ ...s.input, minHeight: 64, resize: "vertical", display: "block", marginBottom: 14 }}
           />
-
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.muted, marginBottom: 8 }}>
             <span>Annual progress</span>
             <span style={{ color: C.gold, fontWeight: 700 }}>{booksCompleted} of {TOTAL_BOOKS} books</span>
           </div>
-
           <div
             ref={bookBarRef}
             style={{ position: "relative", height: 40, cursor: "pointer", userSelect: "none", marginBottom: 6 }}
@@ -950,7 +959,7 @@ export default function App() {
               width: `${(booksCompleted / TOTAL_BOOKS) * 100}%`, transition: "width 0.1s",
             }} />
             {Array.from({ length: TOTAL_BOOKS + 1 }).map((_, idx) => {
-              const reached = idx <= booksCompleted;
+              const reached  = idx <= booksCompleted;
               const isActive = idx === booksCompleted;
               return (
                 <div key={idx} style={{
@@ -1000,19 +1009,15 @@ export default function App() {
           }}>
             💼 Office tasks to complete today
           </div>
-
           {officeTasks.map(task => (
             <div key={task.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
-              <div
-                onClick={() => updateOfficeTask(task.id, "done", !task.done)}
-                style={{
-                  width: 18, height: 18, borderRadius: 6, flexShrink: 0, cursor: "pointer",
-                  border: `1.5px solid ${task.done ? C.blue : C.border}`,
-                  background: task.done ? C.blue : "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "all 0.15s",
-                }}
-              >
+              <div onClick={() => updateOfficeTask(task.id, "done", !task.done)} style={{
+                width: 18, height: 18, borderRadius: 6, flexShrink: 0, cursor: "pointer",
+                border: `1.5px solid ${task.done ? C.blue : C.border}`,
+                background: task.done ? C.blue : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all 0.15s",
+              }}>
                 {task.done && <span style={{ color: "#fff", fontSize: 10, fontWeight: 800 }}>✓</span>}
               </div>
               <input
@@ -1025,26 +1030,17 @@ export default function App() {
                   color: task.done ? C.muted : C.text, fontSize: 12,
                 }}
               />
-              <button
-                onClick={() => removeOfficeTask(task.id)}
-                style={{
-                  background: "transparent", border: "none", color: C.muted,
-                  cursor: "pointer", fontSize: 16, padding: "0 2px", lineHeight: 1,
-                  transition: "color 0.15s",
-                }}
-              >×</button>
+              <button onClick={() => removeOfficeTask(task.id)} style={{
+                background: "transparent", border: "none", color: C.muted,
+                cursor: "pointer", fontSize: 16, padding: "0 2px", lineHeight: 1,
+              }}>×</button>
             </div>
           ))}
-
-          <button
-            onClick={addOfficeTask}
-            style={{
-              ...s.btn, background: "transparent",
-              border: `1px dashed ${C.border2}`,
-              color: C.muted2, width: "100%", marginTop: 4, fontSize: 12,
-              borderRadius: 9,
-            }}
-          >+ Add task</button>
+          <button onClick={addOfficeTask} style={{
+            ...s.btn, background: "transparent",
+            border: `1px dashed ${C.border2}`,
+            color: C.muted2, width: "100%", marginTop: 4, fontSize: 12, borderRadius: 9,
+          }}>+ Add task</button>
         </Card>
 
         {/* Journal */}
@@ -1086,7 +1082,7 @@ export default function App() {
               { label: "Water",   value: `${waterML}ml`, icon: "💧", accent: C.blue },
               { label: "Books",   value: `${booksCompleted}/${TOTAL_BOOKS}`, icon: "📚", accent: C.gold },
               { label: "Reading", value: reading || "—", icon: "📖", accent: C.purple },
-              { label: "Writing", value: writingNote ? "✓ logged" : "—", icon: "✍️", accent: C.green },
+              { label: "Writing", value: writingTopic ? writingTopic : writingNote ? "✓ logged" : "—", icon: "✍️", accent: C.green },
             ].map(({ label, value, icon, accent }) => (
               <div key={label} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -1094,16 +1090,21 @@ export default function App() {
                 border: `1px solid ${C.border}`,
               }}>
                 <span style={{ fontSize: 12, color: C.muted2 }}>{icon} {label}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: accent }}>{value}</span>
+                <span style={{
+                  fontSize: 12, fontWeight: 700, color: accent,
+                  maxWidth: 130, textAlign: "right",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>{value}</span>
               </div>
             ))}
+
             {period && (
               <div style={{
                 textAlign: "center", padding: "8px", background: "#2d1020",
                 borderRadius: 9, border: `1px solid ${C.period}30`,
                 fontSize: 12, color: C.period, fontWeight: 600,
               }}>
-                🌸 Period day — rest is productive
+                🌸 Period day — prayers paused, keep going 💪
               </div>
             )}
             {pct === 100 && !period && (
@@ -1112,12 +1113,11 @@ export default function App() {
                 background: `linear-gradient(135deg, ${C.green}18, ${C.teal}10)`,
                 border: `1px solid ${C.green}40`, fontSize: 12, color: C.green, fontWeight: 700,
               }}>
-                🌟 Perfect day, Aashika! Alhamdulillah!
+                🌟 Perfect day! Alhamdulillah!
               </div>
             )}
           </div>
 
-          {/* Day type indicator */}
           {!isToday && (
             <div style={{
               marginTop: 12, padding: "10px 12px", borderRadius: 10,
@@ -1125,7 +1125,7 @@ export default function App() {
               border: `1px solid ${isFuture ? C.blue : C.gold}25`,
               fontSize: 11, color: isFuture ? C.blue : C.gold, lineHeight: 1.5,
             }}>
-              {isFuture ? "🗓️" : "📅"} You're viewing <strong>{fmt(date)}</strong>.<br />
+              {isFuture ? "🗓️" : "📅"} Viewing <strong>{fmt(date)}</strong>.<br />
               {isFuture ? "Plan ahead — data saves automatically." : "All data shown is from that day."}
             </div>
           )}
